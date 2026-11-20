@@ -60,6 +60,7 @@ small,.muted{color:var(--muted)}
 .language-list label{display:flex;gap:5px;align-items:center;background:#091326;border:1px solid var(--border);padding:9px;border-radius:8px}
 .language-list input{width:auto;margin:0}
 .form-note{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:12px}
+.library-poster{width:48px;height:65px;object-fit:cover;border-radius:6px}
 @media(max-width:850px){#adminApp{display:block}.sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5}.brand{padding:8px 5px}.nav-wrap{display:flex;overflow-x:auto;gap:5px}.nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px}.main{padding:15px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.grid2{grid-template-columns:1fr}.main{padding:12px}.panel{padding:14px}.search-result{align-items:flex-start}}
 </style>
@@ -357,9 +358,7 @@ async function searchAnime(){
  window.animeSearchResults=[];
  try{
   let results=[];
-  try{
-   results=await searchAniList(query);
-  }catch(e){console.warn("AniList:",e);}
+  try{results=await searchAniList(query);}catch(e){console.warn("AniList:",e);}
   if(!results.length){
    output.innerHTML="<p class='muted'>Trying MyAnimeList...</p>";
    try{results=await searchJikan(query);}catch(e){console.warn("MyAnimeList:",e);}
@@ -456,7 +455,7 @@ function selectSearchResult(index){
  toast("Anime details auto-filled");
 }
 
-/* ANIME SAVE / EDIT - MATCHES YOUR SUPABASE COLUMNS */
+/* ANIME SAVE / EDIT - MATCHES EXACT SUPABASE COLUMNS */
 function selectedLanguages(){
  return [...document.querySelectorAll('input[name="animeLanguage"]:checked')].map(x=>x.value);
 }
@@ -485,12 +484,11 @@ async function saveAnime(){
  const yearText=document.getElementById("aSeason").value.match(/\b(19|20)\d{2}\b/);
  const releaseYear=yearText?Number(yearText[0]):null;
 
- // These column names match the anime table in your Supabase project.
  const row={
   anime_id:animeId,
   title:title,
   description:document.getElementById("aDescription").value.trim()||null,
-  poster_uri:document.getElementById("aPoster").value.trim()||null,
+  poster_url:document.getElementById("aPoster").value.trim()||null,
   banner_url:document.getElementById("aBanner").value.trim()||null,
   genres:genres,
   release_year:releaseYear,
@@ -543,7 +541,7 @@ function editAnime(id){
  editingAnimeId=id;
  document.getElementById("aAnimeId").value=a.anime_id||"";
  document.getElementById("aTitle").value=a.title||"";
- document.getElementById("aPoster").value=a.poster_uri||"";
+ document.getElementById("aPoster").value=a.poster_url||"";
  document.getElementById("aBanner").value=a.banner_url||"";
  document.getElementById("aDescription").value=a.description||"";
  document.getElementById("aGenres").value=Array.isArray(a.genres)?a.genres.join(", "):(a.genres||"");
@@ -563,7 +561,7 @@ function renderAnime(){
  const rows=animeData.filter(a=>(a.title||"").toLowerCase().includes(search));
  document.getElementById("animeList").innerHTML=rows.length?rows.map(a=>`
   <div class="item">
-   <img class="library-poster" src="${safe(a.poster_uri||"")}" onerror="this.style.display='none'" alt="">
+   <img class="library-poster" src="${safe(a.poster_url||"")}" onerror="this.style.display='none'" alt="">
    <div class="item-info">
     <b>${safe(a.title)}</b>
     <small>${safe(a.anime_type||"Anime")} · ${safe(a.status||"")} · ${safe(a.language||"")}</small>
