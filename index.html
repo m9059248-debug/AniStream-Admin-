@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080d1b">
 <title>AniStream Admin Panel</title>
 
@@ -11,87 +11,48 @@
 
 <style>
 :root{
-  --bg:#080d1b;
-  --panel:#101a30;
-  --panel2:#14213b;
-  --border:#243654;
-  --blue:#287bff;
-  --text:#edf3ff;
-  --muted:#91a3c2;
-  --red:#ef4444;
-  --green:#22c55e;
+  --bg:#080d1b;--panel:#101a30;--panel2:#14213b;
+  --border:#243654;--blue:#287bff;--text:#edf3ff;
+  --muted:#91a3c2;--red:#ef4444;--green:#22c55e;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,sans-serif;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
 button,input,textarea,select{font:inherit}
 button{
   border:0;border-radius:9px;padding:11px 15px;
-  background:var(--blue);color:white;font-weight:700;
-  cursor:pointer;
+  background:var(--blue);color:white;font-weight:700;cursor:pointer
 }
 button:hover{filter:brightness(1.12)}
 button:disabled{opacity:.5;cursor:not-allowed}
 input,textarea,select{
   width:100%;padding:12px;margin:7px 0 13px;
   border:1px solid var(--border);border-radius:9px;
-  background:#091326;color:white;outline:none;
+  background:#091326;color:white;outline:none
 }
 textarea{min-height:90px;resize:vertical}
 label{font-size:13px;color:#b7c7e2}
 h1,h2,h3{margin-top:0}
 small,.muted{color:var(--muted)}
 .hidden{display:none!important}
-#loginScreen{
-  min-height:100vh;display:flex;align-items:center;
-  justify-content:center;padding:20px;
-}
-.login-box{
-  width:100%;max-width:390px;background:var(--panel);
-  border:1px solid var(--border);padding:28px;border-radius:18px;
-}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{width:100%;max-width:390px;background:var(--panel);border:1px solid var(--border);padding:28px;border-radius:18px}
 .logo{font-size:25px;font-weight:900;margin-bottom:8px}
-.logo span{color:#438cff}
+.logo span,.brand span{color:#438cff}
 #adminApp{display:flex;min-height:100vh}
-.sidebar{
-  width:245px;background:#0b1427;border-right:1px solid var(--border);
-  padding:22px 14px;flex-shrink:0;
-}
+.sidebar{width:245px;background:#0b1427;border-right:1px solid var(--border);padding:22px 14px;flex-shrink:0}
 .brand{font-size:22px;font-weight:900;padding:8px 10px 25px}
-.brand span{color:#438cff}
-.nav-btn{
-  width:100%;text-align:left;background:transparent;
-  color:#b6c6e2;margin:4px 0;padding:13px;
-}
+.nav-btn{width:100%;text-align:left;background:transparent;color:#b6c6e2;margin:4px 0;padding:13px}
 .nav-btn.active,.nav-btn:hover{background:#172b4d;color:white}
 .main{flex:1;min-width:0;padding:25px}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;margin-bottom:25px;flex-wrap:wrap;
-}
-.cards{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px;margin-bottom:24px;
-}
-.stat{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:13px;padding:19px;
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:19px}
 .stat strong{display:block;font-size:27px;margin-top:9px}
-.panel{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:13px;padding:20px;margin-bottom:18px;
-}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:20px;margin-bottom:18px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
 .row>*{flex:1}
-.item{
-  padding:14px 0;border-bottom:1px solid var(--border);
-  display:flex;gap:12px;justify-content:space-between;
-  align-items:center;flex-wrap:wrap;
-}
+.item{padding:14px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .item:last-child{border:0}
 .item-info{min-width:0;flex:1}
 .item-info b{display:block;overflow-wrap:anywhere}
@@ -100,667 +61,784 @@ small,.muted{color:var(--muted)}
 .success{background:#16834c}
 .section{display:none}
 .section.active{display:block}
-.badge{
-  display:inline-block;padding:4px 8px;border-radius:20px;
-  background:#193d70;color:#b8d6ff;font-size:11px;
-}
-#toast{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  background:#172b4d;border:1px solid #35527b;
-  padding:12px 18px;border-radius:10px;display:none;
-  z-index:20;max-width:90%;text-align:center;
-}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#193d70;color:#b8d6ff;font-size:11px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172b4d;border:1px solid #35527b;padding:12px 18px;border-radius:10px;display:none;z-index:20;max-width:90%;text-align:center}
+.search-result{display:flex;gap:12px;padding:12px;border-bottom:1px solid var(--border);align-items:center}
+.search-result img{width:65px;height:90px;object-fit:cover;border-radius:7px;background:#091326}
+.search-result .info{flex:1;min-width:0}
+.search-result b{display:block;margin-bottom:5px}
+.search-result p{font-size:12px;color:var(--muted);margin:4px 0}
+.poster-preview{width:90px;height:125px;object-fit:cover;border-radius:8px;display:none;margin:8px 0}
+.language-list{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0 16px}
+.language-list label{display:flex;gap:5px;align-items:center;background:#091326;border:1px solid var(--border);padding:9px;border-radius:8px}
+.language-list input{width:auto;margin:0}
+.library-poster{width:48px;height:65px;object-fit:cover;border-radius:5px}
+.form-note{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:12px}
 @media(max-width:850px){
-  #adminApp{display:block}
-  .sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5}
-  .brand{padding:8px 5px}
-  .nav-wrap{display:flex;overflow-x:auto;gap:5px}
-  .nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px}
-  .main{padding:15px}
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #adminApp{display:block}
+ .sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5}
+ .brand{padding:8px 5px}
+ .nav-wrap{display:flex;overflow-x:auto;gap:5px}
+ .nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px}
+ .main{padding:15px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:520px){
-  .grid2{grid-template-columns:1fr}
-  .main{padding:12px}
-  .panel{padding:14px}
+ .grid2{grid-template-columns:1fr}
+ .main{padding:12px}
+ .panel{padding:14px}
+ .search-result{align-items:flex-start}
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-box">
-    <div class="logo">AniStream <span>Admin</span></div>
-    <p class="muted">Private administration panel</p>
-
-    <label>Admin Email</label>
-    <input id="loginEmail" type="email" placeholder="Enter admin email">
-
-    <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="Enter password">
-
-    <button id="loginBtn" style="width:100%" onclick="loginAdmin()">Login</button>
-    <p id="loginMessage" class="muted"></p>
-  </div>
+ <div class="login-box">
+  <div class="logo">AniStream <span>Admin</span></div>
+  <p class="muted">Private administration panel</p>
+  <label>Admin Email</label>
+  <input id="loginEmail" type="email" placeholder="Enter admin email">
+  <label>Password</label>
+  <input id="loginPassword" type="password" placeholder="Enter password">
+  <button id="loginBtn" style="width:100%" onclick="loginAdmin()">Login</button>
+  <p id="loginMessage" class="muted"></p>
+ </div>
 </div>
 
-<!-- ADMIN APP -->
 <div id="adminApp" class="hidden">
+ <aside class="sidebar">
+  <div class="brand">AniStream <span>Admin</span></div>
+  <div class="nav-wrap">
+   <button class="nav-btn active" onclick="showSection('dashboard',this)">Dashboard</button>
+   <button class="nav-btn" onclick="showSection('anime',this)">Anime</button>
+   <button class="nav-btn" onclick="showSection('seasons',this)">Seasons</button>
+   <button class="nav-btn" onclick="showSection('episodes',this)">Episodes</button>
+   <button class="nav-btn" onclick="showSection('servers',this)">Video Servers</button>
+   <button class="nav-btn" onclick="showSection('comments',this)">Comments</button>
+   <button class="nav-btn" onclick="showSection('notifications',this)">Notifications</button>
+  </div>
+ </aside>
 
-  <aside class="sidebar">
-    <div class="brand">AniStream <span>Admin</span></div>
-    <div class="nav-wrap">
-      <button class="nav-btn active" onclick="showSection('dashboard',this)">Dashboard</button>
-      <button class="nav-btn" onclick="showSection('anime',this)">Anime</button>
-      <button class="nav-btn" onclick="showSection('seasons',this)">Seasons</button>
-      <button class="nav-btn" onclick="showSection('episodes',this)">Episodes</button>
-      <button class="nav-btn" onclick="showSection('servers',this)">Video Servers</button>
-      <button class="nav-btn" onclick="showSection('comments',this)">Comments</button>
-      <button class="nav-btn" onclick="showSection('notifications',this)">Notifications</button>
+ <main class="main">
+  <div class="topbar">
+   <div>
+    <h2 id="pageTitle">Dashboard</h2>
+    <small id="adminEmailDisplay">Admin Panel</small>
+   </div>
+   <button class="danger" onclick="logoutAdmin()">Logout</button>
+  </div>
+
+  <section id="dashboard" class="section active">
+   <div class="cards">
+    <div class="stat">Anime<strong id="countAnime">0</strong></div>
+    <div class="stat">Seasons<strong id="countSeasons">0</strong></div>
+    <div class="stat">Episodes<strong id="countEpisodes">0</strong></div>
+    <div class="stat">Comments<strong id="countComments">0</strong></div>
+   </div>
+   <div class="panel">
+    <h3>Welcome to AniStream</h3>
+    <p class="muted">Manage anime, episodes, streaming links, comments and notifications.</p>
+    <button onclick="refreshDashboard()">Refresh Dashboard</button>
+   </div>
+  </section>
+
+  <!-- ANIME -->
+  <section id="anime" class="section">
+
+   <div class="panel">
+    <h3>🔎 Search Anime (Ultra Auto-Fill)</h3>
+    <p class="muted">Search using AniList or MyAnimeList data.</p>
+    <div class="row">
+     <div>
+      <input id="animeQuery" placeholder="Enter anime name...">
+     </div>
+     <div style="flex:0 0 auto">
+      <button id="searchAnimeBtn" onclick="searchAnime()">🔎 Search Anime</button>
+     </div>
     </div>
-  </aside>
+    <div id="searchResults"></div>
+   </div>
 
-  <main class="main">
-    <div class="topbar">
-      <div>
-        <h2 id="pageTitle">Dashboard</h2>
-        <small id="adminEmailDisplay">Admin Panel</small>
-      </div>
-      <button class="danger" onclick="logoutAdmin()">Logout</button>
+   <div class="panel">
+    <h3>➕ Add New Anime</h3>
+    <p class="muted">Pehle search karke auto-fill karein ya manually details enter karein.</p>
+
+    <label>Type (Series / Movie)</label>
+    <select id="aType">
+     <option value="Series">📺 Anime Series</option>
+     <option value="Movie">🎬 Anime Movie</option>
+    </select>
+
+    <label>Anime ID (URL Friendly)</label>
+    <input id="aAnimeId" placeholder="example-anime">
+
+    <label>Anime Name</label>
+    <input id="aTitle" placeholder="Anime name">
+
+    <label>Thumbnail URL</label>
+    <input id="aPoster" placeholder="https://...">
+    <img id="posterPreview" class="poster-preview" alt="Poster preview">
+
+    <label>Banner URL</label>
+    <input id="aBanner" placeholder="https://...">
+
+    <label>Anime Description</label>
+    <textarea id="aDescription" placeholder="Anime description"></textarea>
+
+    <label>Genre (Multiple Genres Comma-Separated)</label>
+    <input id="aGenres" placeholder="Action, Fantasy, Adventure">
+
+    <label>Season / Format</label>
+    <input id="aSeason" placeholder="Winter 2026 / TV / Movie">
+
+    <label>Available Languages (Ek ya zyada select karein)</label>
+    <div class="language-list">
+     <label><input type="checkbox" name="animeLanguage" value="Hindi"> Hindi</label>
+     <label><input type="checkbox" name="animeLanguage" value="English"> English</label>
+     <label><input type="checkbox" name="animeLanguage" value="Japanese"> Japanese</label>
+     <label><input type="checkbox" name="animeLanguage" value="Tamil"> Tamil</label>
+     <label><input type="checkbox" name="animeLanguage" value="Telugu"> Telugu</label>
+    </div>
+    <p class="form-note">Selected languages database ke anime.language column mein comma-separated save hongi.</p>
+
+    <div class="grid2">
+     <div>
+      <label>Status</label>
+      <select id="aStatus">
+       <option value="ongoing">Ongoing</option>
+       <option value="completed">Completed</option>
+       <option value="upcoming">Upcoming</option>
+      </select>
+     </div>
+     <div>
+      <label>Publish</label>
+      <select id="aPublished">
+       <option value="true">Published</option>
+       <option value="false">Draft</option>
+      </select>
+     </div>
     </div>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="section active">
-      <div class="cards">
-        <div class="stat">Anime<strong id="countAnime">0</strong></div>
-        <div class="stat">Seasons<strong id="countSeasons">0</strong></div>
-        <div class="stat">Episodes<strong id="countEpisodes">0</strong></div>
-        <div class="stat">Comments<strong id="countComments">0</strong></div>
-      </div>
-      <div class="panel">
-        <h3>Welcome to AniStream</h3>
-        <p class="muted">Manage your anime catalogue, episodes, streaming links, comments and notifications from here.</p>
-        <button onclick="refreshDashboard()">Refresh Dashboard</button>
-      </div>
-    </section>
+    <div class="row">
+     <button id="saveAnimeBtn" onclick="saveAnime()">➕ Add Anime to Database</button>
+     <button class="secondary hidden" id="cancelEditBtn" onclick="resetAnimeForm()">Cancel Edit</button>
+    </div>
+    <p id="animeFormMessage" class="muted"></p>
+   </div>
 
-    <!-- ANIME -->
-    <section id="anime" class="section">
-      <div class="panel">
-        <h3>Add New Anime</h3>
-        <label>Anime Title</label>
-        <input id="aTitle" placeholder="Anime name">
+   <div class="panel">
+    <h3>📚 Anime Library</h3>
+    <input id="animeSearch" placeholder="Search anime library..." oninput="renderAnime()">
+    <div id="animeList">Loading...</div>
+   </div>
+  </section>
 
-        <label>Description</label>
-        <textarea id="aDescription" placeholder="Anime description"></textarea>
+  <!-- SEASONS -->
+  <section id="seasons" class="section">
+   <div class="panel">
+    <h3>Add Season</h3>
+    <label>Select Anime</label>
+    <select id="seasonAnime"></select>
+    <label>Season Number</label>
+    <input id="seasonNumber" type="number" min="1" value="1">
+    <label>Season Title</label>
+    <input id="seasonTitle" placeholder="Season 1">
+    <button onclick="addSeason()">Add Season</button>
+   </div>
+   <div class="panel">
+    <h3>Season List</h3>
+    <div id="seasonList">Loading...</div>
+   </div>
+  </section>
 
-        <div class="grid2">
-          <div>
-            <label>Poster Image URL</label>
-            <input id="aPoster" placeholder="https://...">
-          </div>
-          <div>
-            <label>Banner Image URL</label>
-            <input id="aBanner" placeholder="https://...">
-          </div>
-        </div>
+  <!-- EPISODES -->
+  <section id="episodes" class="section">
+   <div class="panel">
+    <h3>Add Episode</h3>
+    <label>Select Anime</label>
+    <select id="episodeAnime" onchange="updateSeasonOptions()"></select>
+    <label>Select Season</label>
+    <select id="episodeSeason"></select>
+    <label>Episode Number</label>
+    <input id="episodeNumber" type="number" min="1" value="1">
+    <label>Episode Title</label>
+    <input id="episodeTitle" placeholder="Episode 1">
+    <label>Description</label>
+    <textarea id="episodeDescription" placeholder="Episode description"></textarea>
+    <label>Publish Episode</label>
+    <select id="episodePublished">
+     <option value="true">Published</option>
+     <option value="false">Draft</option>
+    </select>
+    <button onclick="addEpisode()">Add Episode</button>
+   </div>
 
-        <label>Genres (comma separated)</label>
-        <input id="aGenres" placeholder="Action, Fantasy, Adventure">
+   <div class="panel">
+    <h3>Episode Management</h3>
+    <label>Choose Anime for Episode Management</label>
+    <select id="bulkAnimeSelect" onchange="renderEpisodeManagement()"></select>
+    <div class="row">
+     <button class="danger" onclick="deleteAllAnimeEpisodes()">🗑 Delete All Episodes of Selected Anime</button>
+    </div>
+    <p class="form-note">This deletes the selected anime's episodes and their video-server records. Anime and season records remain.</p>
+    <div id="episodeList">Loading...</div>
+   </div>
+  </section>
 
-        <label>Status</label>
-        <select id="aStatus">
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-          <option value="upcoming">Upcoming</option>
-        </select>
+  <!-- SERVERS -->
+  <section id="servers" class="section">
+   <div class="panel">
+    <h3>Add Video Server</h3>
+    <label>Select Episode</label>
+    <select id="serverEpisode"></select>
+    <label>Server Name</label>
+    <input id="serverName" placeholder="Server 1">
+    <label>Video URL</label>
+    <input id="serverUrl" type="url" placeholder="https://...">
+    <div class="grid2">
+     <div>
+      <label>Quality</label>
+      <select id="serverQuality">
+       <option>1080p</option><option selected>720p</option><option>480p</option>
+      </select>
+     </div>
+     <div>
+      <label>Audio Language</label>
+      <select id="serverLanguage">
+       <option>Hindi</option><option>Japanese</option><option>English</option><option>Subtitles</option>
+      </select>
+     </div>
+    </div>
+    <button onclick="addServer()">Add Video Server</button>
+   </div>
+   <div class="panel">
+    <h3>Video Server List</h3>
+    <div id="serverList">Loading...</div>
+   </div>
+  </section>
 
-        <label>Publish Anime</label>
-        <select id="aPublished">
-          <option value="true">Published</option>
-          <option value="false">Draft</option>
-        </select>
+  <!-- COMMENTS -->
+  <section id="comments" class="section">
+   <div class="panel">
+    <h3>Comments Management</h3>
+    <div id="commentList">Loading...</div>
+   </div>
+  </section>
 
-        <button onclick="addAnime()">Add Anime</button>
-      </div>
-
-      <div class="panel">
-        <h3>Anime List</h3>
-        <input id="animeSearch" placeholder="Search anime..." oninput="renderAnime()">
-        <div id="animeList">Loading...</div>
-      </div>
-    </section>
-
-    <!-- SEASONS -->
-    <section id="seasons" class="section">
-      <div class="panel">
-        <h3>Add Season</h3>
-        <label>Select Anime</label>
-        <select id="seasonAnime"></select>
-        <label>Season Number</label>
-        <input id="seasonNumber" type="number" min="1" value="1">
-        <label>Season Title</label>
-        <input id="seasonTitle" placeholder="Season 1">
-        <button onclick="addSeason()">Add Season</button>
-      </div>
-      <div class="panel">
-        <h3>Season List</h3>
-        <div id="seasonList">Loading...</div>
-      </div>
-    </section>
-
-    <!-- EPISODES -->
-    <section id="episodes" class="section">
-      <div class="panel">
-        <h3>Add Episode</h3>
-        <label>Select Anime</label>
-        <select id="episodeAnime" onchange="updateSeasonOptions()"></select>
-        <label>Select Season</label>
-        <select id="episodeSeason"></select>
-        <label>Episode Number</label>
-        <input id="episodeNumber" type="number" min="1" value="1">
-        <label>Episode Title</label>
-        <input id="episodeTitle" placeholder="Episode 1">
-        <label>Description</label>
-        <textarea id="episodeDescription" placeholder="Episode description"></textarea>
-        <label>Publish Episode</label>
-        <select id="episodePublished">
-          <option value="true">Published</option>
-          <option value="false">Draft</option>
-        </select>
-        <button onclick="addEpisode()">Add Episode</button>
-      </div>
-      <div class="panel">
-        <h3>Episode List</h3>
-        <div id="episodeList">Loading...</div>
-      </div>
-    </section>
-
-    <!-- VIDEO SERVERS -->
-    <section id="servers" class="section">
-      <div class="panel">
-        <h3>Add Video Server</h3>
-        <label>Select Episode</label>
-        <select id="serverEpisode"></select>
-        <label>Server Name</label>
-        <input id="serverName" placeholder="Server 1">
-        <label>Video URL</label>
-        <input id="serverUrl" type="url" placeholder="https://...">
-        <div class="grid2">
-          <div>
-            <label>Quality</label>
-            <select id="serverQuality">
-              <option>1080p</option>
-              <option selected>720p</option>
-              <option>480p</option>
-            </select>
-          </div>
-          <div>
-            <label>Audio Language</label>
-            <select id="serverLanguage">
-              <option>Hindi</option>
-              <option>Japanese</option>
-              <option>English</option>
-              <option>Subtitles</option>
-            </select>
-          </div>
-        </div>
-        <button onclick="addServer()">Add Video Server</button>
-      </div>
-      <div class="panel">
-        <h3>Video Server List</h3>
-        <div id="serverList">Loading...</div>
-      </div>
-    </section>
-
-    <!-- COMMENTS -->
-    <section id="comments" class="section">
-      <div class="panel">
-        <h3>Comments Management</h3>
-        <div id="commentList">Loading...</div>
-      </div>
-    </section>
-
-    <!-- NOTIFICATIONS -->
-    <section id="notifications" class="section">
-      <div class="panel">
-        <h3>Create Notification</h3>
-        <label>Notification Title</label>
-        <input id="notificationTitle" placeholder="New episode available!">
-        <label>Message</label>
-        <textarea id="notificationMessage" placeholder="Write notification message"></textarea>
-        <label>Active</label>
-        <select id="notificationActive">
-          <option value="true">Yes</option>
-          <option value="false">No</option>
-        </select>
-        <button onclick="addNotification()">Create Notification</button>
-      </div>
-      <div class="panel">
-        <h3>Notification List</h3>
-        <div id="notificationList">Loading...</div>
-      </div>
-    </section>
-  </main>
+  <!-- NOTIFICATIONS -->
+  <section id="notifications" class="section">
+   <div class="panel">
+    <h3>Create Notification</h3>
+    <label>Notification Title</label>
+    <input id="notificationTitle" placeholder="New episode available!">
+    <label>Message</label>
+    <textarea id="notificationMessage" placeholder="Write notification message"></textarea>
+    <label>Active</label>
+    <select id="notificationActive">
+     <option value="true">Yes</option><option value="false">No</option>
+    </select>
+    <button onclick="addNotification()">Create Notification</button>
+   </div>
+   <div class="panel">
+    <h3>Notification List</h3>
+    <div id="notificationList">Loading...</div>
+   </div>
+  </section>
+ </main>
 </div>
 
 <div id="toast"></div>
 
 <script>
-/* SUPABASE CONNECTION */
-const SUPABASE_URL = "https://cyftkgouolxcverswvpv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_h-Alm01lWCWvvlWcW-Uqyg_iAub4QH3";
+const SUPABASE_URL="https://cyftkgouolxcverswvpv.supabase.co";
+const SUPABASE_KEY="sb_publishable_h-Alm01lWCWvvlWcW-Uqyg_iAub4QH3";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-let currentUser = null;
-let animeData = [];
-let seasonData = [];
-let episodeData = [];
-let serverData = [];
-let commentData = [];
-let notificationData = [];
+let currentUser=null;
+let animeData=[],seasonData=[],episodeData=[],serverData=[],commentData=[],notificationData=[];
+let editingAnimeId=null;
 
 function toast(message){
-  const el=document.getElementById("toast");
-  el.textContent=message;
-  el.style.display="block";
-  setTimeout(()=>el.style.display="none",3000);
+ const el=document.getElementById("toast");
+ el.textContent=message;el.style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>el.style.display="none",3500);
 }
-
-function safe(value){
-  return String(value ?? "").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
+function safe(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
+function slugify(value){
+ return String(value||"").toLowerCase().trim()
+ .normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
+ .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function setMessage(id,msg){document.getElementById(id).textContent=msg;}
 
 async function loginAdmin(){
-  const email=document.getElementById("loginEmail").value.trim();
-  const password=document.getElementById("loginPassword").value;
-  const msg=document.getElementById("loginMessage");
-  const btn=document.getElementById("loginBtn");
-
-  if(!email || !password){msg.textContent="Enter email and password.";return;}
-
-  btn.disabled=true;
-  msg.textContent="Checking login...";
-
-  try{
-    const {data,error}=await db.auth.signInWithPassword({email,password});
-    if(error) throw error;
-
-    const user=data.user;
-    const {data:admin,error:adminError}=await db
-      .from("admin_users")
-      .select("user_id")
-      .eq("user_id",user.id)
-      .maybeSingle();
-
-    if(adminError) throw adminError;
-
-    if(!admin){
-      await db.auth.signOut();
-      throw new Error("This account is not authorized as an admin.");
-    }
-
-    currentUser=user;
-    showAdmin();
-  }catch(error){
-    msg.textContent=error.message || "Login failed.";
-  }finally{
-    btn.disabled=false;
-  }
+ const email=document.getElementById("loginEmail").value.trim();
+ const password=document.getElementById("loginPassword").value;
+ const msg=document.getElementById("loginMessage");
+ const btn=document.getElementById("loginBtn");
+ if(!email||!password){msg.textContent="Enter email and password.";return;}
+ btn.disabled=true;msg.textContent="Checking login...";
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  const {data:admin,error:ae}=await db.from("admin_users").select("user_id").eq("user_id",data.user.id).maybeSingle();
+  if(ae)throw ae;
+  if(!admin){await db.auth.signOut();throw new Error("This account is not authorized as an admin.");}
+  currentUser=data.user;await showAdmin();
+ }catch(e){msg.textContent=e.message||"Login failed.";}
+ finally{btn.disabled=false;}
 }
-
 async function checkSession(){
-  try{
-    const {data,error}=await db.auth.getSession();
-    if(error) throw error;
-    const user=data.session?.user;
-    if(!user) return;
-
-    const {data:admin,error:adminError}=await db
-      .from("admin_users")
-      .select("user_id")
-      .eq("user_id",user.id)
-      .maybeSingle();
-
-    if(adminError || !admin){
-      await db.auth.signOut();
-      return;
-    }
-    currentUser=user;
-    showAdmin();
-  }catch(e){
-    console.error(e);
-  }
+ try{
+  const {data,error}=await db.auth.getSession();if(error)throw error;
+  const user=data.session?.user;if(!user)return;
+  const {data:admin,error:ae}=await db.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
+  if(ae||!admin){await db.auth.signOut();return;}
+  currentUser=user;await showAdmin();
+ }catch(e){console.error(e);}
 }
-
 async function showAdmin(){
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("adminApp").classList.remove("hidden");
-  document.getElementById("adminEmailDisplay").textContent=currentUser.email;
-  await loadAll();
+ document.getElementById("loginScreen").classList.add("hidden");
+ document.getElementById("adminApp").classList.remove("hidden");
+ document.getElementById("adminEmailDisplay").textContent=currentUser.email;
+ await loadAll();
 }
-
-async function logoutAdmin(){
-  await db.auth.signOut();
-  currentUser=null;
-  location.reload();
-}
-
+async function logoutAdmin(){await db.auth.signOut();location.reload();}
 function showSection(id,button){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  if(button) button.classList.add("active");
-  document.getElementById("pageTitle").textContent=
-    id.charAt(0).toUpperCase()+id.slice(1);
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ document.getElementById("pageTitle").textContent=id.charAt(0).toUpperCase()+id.slice(1);
 }
-
 async function getRows(table,order="created_at"){
-  const {data,error}=await db.from(table).select("*").order(order,{ascending:false});
-  if(error) throw error;
-  return data || [];
+ const {data,error}=await db.from(table).select("*").order(order,{ascending:false});
+ if(error)throw error;return data||[];
 }
-
 async function loadAll(){
-  try{
-    const results=await Promise.all([
-      getRows("anime"),
-      getRows("seasons"),
-      getRows("episodes"),
-      getRows("video_servers"),
-      getRows("comments"),
-      getRows("notifications")
-    ]);
-
-    [animeData,seasonData,episodeData,serverData,commentData,notificationData]=results;
-
-    refreshDashboardUI();
-    renderAnime();
-    renderSeasons();
-    renderEpisodes();
-    renderServers();
-    renderComments();
-    renderNotifications();
-    fillSelects();
-  }catch(error){
-    console.error(error);
-    toast("Data loading error: "+error.message);
-  }
+ try{
+  const results=await Promise.all([
+   getRows("anime"),getRows("seasons"),getRows("episodes"),
+   getRows("video_servers"),getRows("comments"),getRows("notifications")
+  ]);
+  [animeData,seasonData,episodeData,serverData,commentData,notificationData]=results;
+  refreshDashboardUI();renderAnime();renderSeasons();renderEpisodeManagement();
+  renderServers();renderComments();renderNotifications();fillSelects();
+ }catch(e){console.error(e);toast("Data loading error: "+e.message);}
 }
-
 function refreshDashboardUI(){
-  document.getElementById("countAnime").textContent=animeData.length;
-  document.getElementById("countSeasons").textContent=seasonData.length;
-  document.getElementById("countEpisodes").textContent=episodeData.length;
-  document.getElementById("countComments").textContent=commentData.length;
+ document.getElementById("countAnime").textContent=animeData.length;
+ document.getElementById("countSeasons").textContent=seasonData.length;
+ document.getElementById("countEpisodes").textContent=episodeData.length;
+ document.getElementById("countComments").textContent=commentData.length;
 }
+async function refreshDashboard(){await loadAll();toast("Dashboard refreshed");}
 
-async function refreshDashboard(){
-  await loadAll();
-  toast("Dashboard refreshed");
-}
+/* ANILIST + MYANIMELIST SEARCH */
+async function searchAnime(){
+ const query=document.getElementById("animeQuery").value.trim();
+ if(!query){toast("Enter anime name first");return;}
+ const btn=document.getElementById("searchAnimeBtn");
+ const output=document.getElementById("searchResults");
+ btn.disabled=true;btn.textContent="Searching...";
+ output.innerHTML="<p class='muted'>Searching AniList and MyAnimeList...</p>";
 
-/* ANIME */
-async function addAnime(){
-  const title=document.getElementById("aTitle").value.trim();
-  if(!title){toast("Anime title is required");return;}
+ const tasks=await Promise.allSettled([searchAniList(query),searchJikan(query)]);
+ let results=[];
+ tasks.forEach((task,i)=>{
+  if(task.status==="fulfilled")results=results.concat(task.value);
+  else console.warn("Search provider error",i,task.reason);
+ });
 
-  const row={
-    title,
-    description:document.getElementById("aDescription").value.trim(),
-    poster_url:document.getElementById("aPoster").value.trim() || null,
-    banner_url:document.getElementById("aBanner").value.trim() || null,
-    genres:document.getElementById("aGenres").value.split(",").map(x=>x.trim()).filter(Boolean),
-    status:document.getElementById("aStatus").value,
-    is_published:document.getElementById("aPublished").value==="true"
-  };
+ const unique=new Map();
+ results.forEach(a=>{
+  const key=(a.title||"").toLowerCase();
+  if(key&&!unique.has(key))unique.set(key,a);
+ });
+ results=[...unique.values()].slice(0,20);
 
-  try{
-    const {error}=await db.from("anime").insert(row);
-    if(error) throw error;
-    ["aTitle","aDescription","aPoster","aBanner","aGenres"].forEach(id=>document.getElementById(id).value="");
-    await loadAll();
-    toast("Anime added successfully");
-  }catch(e){toast("Anime error: "+e.message);}
-}
-
-function renderAnime(){
-  const search=(document.getElementById("animeSearch")?.value || "").toLowerCase();
-  const list=document.getElementById("animeList");
-  const rows=animeData.filter(a=>(a.title||"").toLowerCase().includes(search));
-
-  list.innerHTML=rows.length ? rows.map(a=>`
-    <div class="item">
-      <div class="item-info">
-        <b>${safe(a.title)}</b>
-        <small>${safe(a.status||"")} · ${a.is_published?"Published":"Draft"}</small>
-      </div>
-      <button class="danger" onclick="deleteRow('anime','${safe(a.id)}')">Delete</button>
+ if(!results.length){
+  output.innerHTML="<p class='muted'>No results found. Try another spelling or enter details manually.</p>";
+ }else{
+  output.innerHTML=results.map((a,i)=>`
+   <div class="search-result">
+    <img src="${safe(a.poster)}" onerror="this.style.visibility='hidden'" alt="">
+    <div class="info">
+     <b>${safe(a.title)}</b>
+     <p>${safe(a.source)} · ${safe(a.format||"Anime")} · ${safe(a.year||"Year unknown")}</p>
+     <p>${safe((a.genres||[]).join(", "))}</p>
     </div>
-  `).join("") : "<p class='muted'>No anime found.</p>";
+    <button onclick="selectSearchResult(${i})">Select</button>
+   </div>
+  `).join("");
+  window.animeSearchResults=results;
+ }
+ btn.disabled=false;btn.textContent="🔎 Search Anime";
+}
+async function searchAniList(query){
+ const gql=`query ($search:String) {
+  Page(perPage:10) {
+   media(search:$search,type:ANIME,sort:SEARCH_MATCH) {
+    id idMal title { romaji english native }
+    description(asHtml:false) coverImage { extraLarge large }
+    bannerImage genres format seasonYear season status episodes
+   }
+  }
+ }`;
+ const response=await fetch("https://graphql.anilist.co",{
+  method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+  body:JSON.stringify({query:gql,variables:{search:query}})
+ });
+ if(!response.ok)throw new Error("AniList search failed");
+ const json=await response.json();
+ return (json.data?.Page?.media||[]).map(a=>({
+  source:"AniList",sourceId:a.id,title:a.title.english||a.title.romaji||a.title.native,
+  poster:a.coverImage?.extraLarge||a.coverImage?.large||"",
+  banner:a.bannerImage||"",description:(a.description||"").replace(/<[^>]*>/g," "),
+  genres:a.genres||[],format:a.format||"",year:a.seasonYear||"",
+  season:a.season||"",status:a.status||"",idMal:a.idMal
+ }));
+}
+async function searchJikan(query){
+ const response=await fetch("https://api.jikan.moe/v4/anime?q="+encodeURIComponent(query)+"&limit=10&sfw=true");
+ if(!response.ok)throw new Error("MyAnimeList search failed");
+ const json=await response.json();
+ return (json.data||[]).map(a=>({
+  source:"MyAnimeList",sourceId:a.mal_id,title:a.title_english||a.title,
+  poster:a.images?.jpg?.large_image_url||a.images?.jpg?.image_url||"",
+  banner:"",description:a.synopsis||"",genres:(a.genres||[]).map(g=>g.name),
+  format:a.type||"",year:a.year||a.aired?.prop?.from?.year||"",
+  season:a.season||"",status:a.status||"",idMal:a.mal_id
+ }));
+}
+function selectSearchResult(index){
+ const a=window.animeSearchResults?.[index];if(!a)return;
+ document.getElementById("aTitle").value=a.title||"";
+ document.getElementById("aAnimeId").value=slugify(a.title);
+ document.getElementById("aPoster").value=a.poster||"";
+ document.getElementById("aBanner").value=a.banner||"";
+ document.getElementById("aDescription").value=a.description||"";
+ document.getElementById("aGenres").value=(a.genres||[]).join(", ");
+ document.getElementById("aSeason").value=[a.season,a.year,a.format].filter(Boolean).join(" / ");
+
+ const format=(a.format||"").toLowerCase();
+ document.getElementById("aType").value=format==="movie"?"Movie":"Series";
+
+ const status=(a.status||"").toLowerCase();
+ document.getElementById("aStatus").value=
+  status==="not_yet_released"||status==="upcoming"?"upcoming":
+  status==="finished"||status==="completed"?"completed":"ongoing";
+
+ updatePosterPreview();
+ document.getElementById("searchResults").innerHTML="<p class='muted'>Selected: "+safe(a.title)+". Details filled below. Please review before saving.</p>";
+ toast("Anime details auto-filled");
+}
+
+/* ANIME SAVE / EDIT */
+function selectedLanguages(){
+ return [...document.querySelectorAll('input[name="animeLanguage"]:checked')].map(x=>x.value);
+}
+function updatePosterPreview(){
+ const url=document.getElementById("aPoster").value.trim();
+ const img=document.getElementById("posterPreview");
+ img.src=url;img.style.display=url?"block":"none";
+}
+document.getElementById("aPoster").addEventListener("input",updatePosterPreview);
+document.getElementById("aTitle").addEventListener("input",()=>{
+ if(!editingAnimeId)document.getElementById("aAnimeId").value=slugify(document.getElementById("aTitle").value);
+});
+
+async function writeAnimeRow(row,id){
+ // Optional columns are retried without them if the database reports that a column is missing.
+ let payload={...row};
+ for(let attempt=0;attempt<4;attempt++){
+  let query=id?db.from("anime").update(payload).eq("id",id):db.from("anime").insert(payload);
+  const {error}=await query;
+  if(!error)return;
+  const match=error.message.match(/column ["']?([a-zA-Z0-9_]+)["']? does not exist|Could not find the ['"]([^'"]+)['"] column/i);
+  const missing=match?.[1]||match?.[2];
+  if(missing&&Object.prototype.hasOwnProperty.call(payload,missing)){
+   delete payload[missing];continue;
+  }
+  throw error;
+ }
+ throw new Error("Could not save anime. Please check the anime table columns.");
+}
+async function saveAnime(){
+ const title=document.getElementById("aTitle").value.trim();
+ if(!title){toast("Anime name is required");return;}
+ const animeId=slugify(document.getElementById("aAnimeId").value||title);
+ if(!animeId){toast("Anime ID is required");return;}
+ const languages=selectedLanguages();
+ if(!languages.length){toast("Select at least one language");return;}
+
+ const row={
+  anime_id:animeId,
+  title,
+  thumbnail_url:document.getElementById("aPoster").value.trim(),
+  banner_url:document.getElementById("aBanner").value.trim(),
+  description:document.getElementById("aDescription").value.trim(),
+  genre:document.getElementById("aGenres").value.trim(),
+  season:document.getElementById("aSeason").value.trim(),
+  language:languages.join(", "),
+  status:document.getElementById("aStatus").value,
+  type:document.getElementById("aType").value,
+  is_published:document.getElementById("aPublished").value==="true"
+ };
+ const btn=document.getElementById("saveAnimeBtn");
+ btn.disabled=true;setMessage("animeFormMessage","Saving anime...");
+ try{
+  await writeAnimeRow(row,editingAnimeId);
+  await loadAll();
+  toast(editingAnimeId?"Anime updated successfully":"Anime added successfully");
+  resetAnimeForm();
+ }catch(e){
+  console.error(e);setMessage("animeFormMessage","Save error: "+e.message);toast("Anime error: "+e.message);
+ }finally{
+  btn.disabled=false;
+ }
+}
+function resetAnimeForm(){
+ editingAnimeId=null;
+ ["aAnimeId","aTitle","aPoster","aBanner","aDescription","aGenres","aSeason"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("aType").value="Series";
+ document.getElementById("aStatus").value="ongoing";
+ document.getElementById("aPublished").value="true";
+ document.querySelectorAll('input[name="animeLanguage"]').forEach(x=>x.checked=false);
+ document.getElementById("posterPreview").style.display="none";
+ document.getElementById("saveAnimeBtn").textContent="➕ Add Anime to Database";
+ document.getElementById("cancelEditBtn").classList.add("hidden");
+ setMessage("animeFormMessage","");
+}
+function editAnime(id){
+ const a=animeData.find(x=>String(x.id)===String(id));if(!a)return;
+ editingAnimeId=id;
+ document.getElementById("aAnimeId").value=a.anime_id||"";
+ document.getElementById("aTitle").value=a.title||"";
+ document.getElementById("aPoster").value=a.thumbnail_url||a.poster_url||"";
+ document.getElementById("aBanner").value=a.banner_url||"";
+ document.getElementById("aDescription").value=a.description||"";
+ document.getElementById("aGenres").value=Array.isArray(a.genre)?a.genre.join(", "):(a.genre||"");
+ document.getElementById("aSeason").value=a.season||"";
+ document.getElementById("aStatus").value=(a.status||"ongoing").toLowerCase();
+ document.getElementById("aType").value=a.type||"Series";
+ document.getElementById("aPublished").value=String(a.is_published!==false);
+ const langs=String(a.language||"").split(",").map(x=>x.trim().toLowerCase());
+ document.querySelectorAll('input[name="animeLanguage"]').forEach(x=>x.checked=langs.includes(x.value.toLowerCase()));
+ updatePosterPreview();
+ document.getElementById("saveAnimeBtn").textContent="Save Anime Changes";
+ document.getElementById("cancelEditBtn").classList.remove("hidden");
+ document.getElementById("anime").scrollIntoView({behavior:"smooth"});
+}
+function renderAnime(){
+ const search=(document.getElementById("animeSearch")?.value||"").toLowerCase();
+ const rows=animeData.filter(a=>(a.title||"").toLowerCase().includes(search));
+ document.getElementById("animeList").innerHTML=rows.length?rows.map(a=>`
+  <div class="item">
+   <img class="library-poster" src="${safe(a.thumbnail_url||a.poster_url||"")}" onerror="this.style.display='none'" alt="">
+   <div class="item-info">
+    <b>${safe(a.title)}</b>
+    <small>${safe(a.type||"Anime")} · ${safe(a.status||"")} · ${safe(a.language||"")}</small>
+   </div>
+   <button class="secondary" onclick="editAnime('${safe(a.id)}')">Edit</button>
+   <button class="danger" onclick="deleteRow('anime','${safe(a.id)}')">Delete</button>
+  </div>`).join(""):"<p class='muted'>No anime found.</p>";
 }
 
 /* SEASONS */
 async function addSeason(){
-  const anime_id=document.getElementById("seasonAnime").value;
-  const season_number=Number(document.getElementById("seasonNumber").value);
-  const title=document.getElementById("seasonTitle").value.trim();
-
-  if(!anime_id || !season_number){toast("Select anime and season number");return;}
-
-  try{
-    const {error}=await db.from("seasons").insert({
-      anime_id,season_number,title:title || `Season ${season_number}`
-    });
-    if(error) throw error;
-    document.getElementById("seasonTitle").value="";
-    await loadAll();
-    toast("Season added");
-  }catch(e){toast("Season error: "+e.message);}
+ const anime_id=document.getElementById("seasonAnime").value;
+ const season_number=Number(document.getElementById("seasonNumber").value);
+ const title=document.getElementById("seasonTitle").value.trim();
+ if(!anime_id||!season_number){toast("Select anime and season number");return;}
+ try{
+  const {error}=await db.from("seasons").insert({anime_id,season_number,title:title||`Season ${season_number}`});
+  if(error)throw error;
+  document.getElementById("seasonTitle").value="";
+  await loadAll();toast("Season added");
+ }catch(e){toast("Season error: "+e.message);}
 }
-
 function renderSeasons(){
-  document.getElementById("seasonList").innerHTML=seasonData.length ?
-    seasonData.map(s=>`
-      <div class="item">
-        <div class="item-info">
-          <b>${safe(s.title || "Season "+s.season_number)}</b>
-          <small>${safe(animeData.find(a=>a.id===s.anime_id)?.title || "Anime")}</small>
-        </div>
-        <button class="danger" onclick="deleteRow('seasons','${safe(s.id)}')">Delete</button>
-      </div>
-    `).join("") : "<p class='muted'>No seasons found.</p>";
+ document.getElementById("seasonList").innerHTML=seasonData.length?seasonData.map(s=>`
+  <div class="item">
+   <div class="item-info"><b>${safe(s.title||"Season "+s.season_number)}</b>
+   <small>${safe(animeData.find(a=>String(a.id)===String(s.anime_id))?.title||"Anime")}</small></div>
+   <button class="danger" onclick="deleteRow('seasons','${safe(s.id)}')">Delete</button>
+  </div>`).join(""):"<p class='muted'>No seasons found.</p>";
 }
 
 /* EPISODES */
 function updateSeasonOptions(){
-  const animeId=document.getElementById("episodeAnime").value;
-  const rows=seasonData.filter(s=>s.anime_id===animeId);
-  document.getElementById("episodeSeason").innerHTML=rows.map(s=>
-    `<option value="${safe(s.id)}">${safe(s.title || "Season "+s.season_number)}</option>`
-  ).join("");
+ const animeId=document.getElementById("episodeAnime").value;
+ const rows=seasonData.filter(s=>String(s.anime_id)===String(animeId));
+ document.getElementById("episodeSeason").innerHTML=rows.map(s=>
+  `<option value="${safe(s.id)}">${safe(s.title||"Season "+s.season_number)}</option>`).join("");
 }
-
 async function addEpisode(){
-  const anime_id=document.getElementById("episodeAnime").value;
-  const season_id=document.getElementById("episodeSeason").value;
-  const episode_number=Number(document.getElementById("episodeNumber").value);
-  const title=document.getElementById("episodeTitle").value.trim();
-
-  if(!anime_id || !season_id || !episode_number || !title){
-    toast("Fill anime, season, number and title");return;
-  }
-
-  try{
-    const {error}=await db.from("episodes").insert({
-      anime_id,season_id,episode_number,title,
-      description:document.getElementById("episodeDescription").value.trim(),
-      is_published:document.getElementById("episodePublished").value==="true"
-    });
-    if(error) throw error;
-    document.getElementById("episodeTitle").value="";
-    document.getElementById("episodeDescription").value="";
-    await loadAll();
-    toast("Episode added");
-  }catch(e){toast("Episode error: "+e.message);}
+ const anime_id=document.getElementById("episodeAnime").value;
+ const season_id=document.getElementById("episodeSeason").value;
+ const episode_number=Number(document.getElementById("episodeNumber").value);
+ const title=document.getElementById("episodeTitle").value.trim();
+ if(!anime_id||!season_id||!episode_number||!title){toast("Fill anime, season, number and title");return;}
+ try{
+  const {error}=await db.from("episodes").insert({
+   anime_id,season_id,episode_number,title,
+   description:document.getElementById("episodeDescription").value.trim(),
+   is_published:document.getElementById("episodePublished").value==="true"
+  });
+  if(error)throw error;
+  document.getElementById("episodeTitle").value="";
+  document.getElementById("episodeDescription").value="";
+  await loadAll();toast("Episode added");
+ }catch(e){toast("Episode error: "+e.message);}
 }
-
-function renderEpisodes(){
-  document.getElementById("episodeList").innerHTML=episodeData.length ?
-    episodeData.map(e=>`
-      <div class="item">
-        <div class="item-info">
-          <b>${safe(e.title)}</b>
-          <small>Episode ${safe(e.episode_number)} · ${safe(animeData.find(a=>a.id===e.anime_id)?.title || "Anime")}</small>
-        </div>
-        <button class="danger" onclick="deleteRow('episodes','${safe(e.id)}')">Delete</button>
-      </div>
-    `).join("") : "<p class='muted'>No episodes found.</p>";
+function renderEpisodeManagement(){
+ const selected=document.getElementById("bulkAnimeSelect")?.value;
+ const rows=episodeData.filter(e=>!selected||String(e.anime_id)===String(selected));
+ document.getElementById("episodeList").innerHTML=rows.length?rows.map(e=>`
+  <div class="item">
+   <div class="item-info">
+    <b>${safe(e.title)}</b>
+    <small>Episode ${safe(e.episode_number)} · ${safe(animeData.find(a=>String(a.id)===String(e.anime_id))?.title||"Anime")}</small>
+   </div>
+   <button class="danger" onclick="deleteSingleEpisode('${safe(e.id)}')">Delete Episode</button>
+  </div>`).join(""):"<p class='muted'>No episodes found for this anime.</p>";
+}
+async function deleteSingleEpisode(id){
+ if(!confirm("Delete this episode and its video server links?"))return;
+ try{
+  const {error:serverError}=await db.from("video_servers").delete().eq("episode_id",id);
+  if(serverError)throw serverError;
+  const {error}=await db.from("episodes").delete().eq("id",id);
+  if(error)throw error;
+  await loadAll();toast("Episode and its video links deleted");
+ }catch(e){toast("Delete error: "+e.message);}
+}
+async function deleteAllAnimeEpisodes(){
+ const animeId=document.getElementById("bulkAnimeSelect").value;
+ if(!animeId){toast("Select an anime first");return;}
+ const anime=animeData.find(a=>String(a.id)===String(animeId));
+ const rows=episodeData.filter(e=>String(e.anime_id)===String(animeId));
+ if(!rows.length){toast("This anime has no episodes");return;}
+ if(!confirm(`Delete ALL ${rows.length} episodes of "${anime?.title||"this anime"}" and their video-server links? This cannot be undone.`))return;
+ try{
+  const ids=rows.map(e=>e.id);
+  const {error:se}=await db.from("video_servers").delete().in("episode_id",ids);
+  if(se)throw se;
+  const {error}=await db.from("episodes").delete().in("id",ids);
+  if(error)throw error;
+  await loadAll();toast("All selected anime episodes deleted");
+ }catch(e){toast("Bulk delete error: "+e.message);}
 }
 
 /* VIDEO SERVERS */
 async function addServer(){
-  const episode_id=document.getElementById("serverEpisode").value;
-  const video_url=document.getElementById("serverUrl").value.trim();
-
-  if(!episode_id || !video_url){toast("Select episode and enter video URL");return;}
-
-  try{
-    const {error}=await db.from("video_servers").insert({
-      episode_id,
-      server_name:document.getElementById("serverName").value.trim() || "Server 1",
-      video_url,
-      quality:document.getElementById("serverQuality").value,
-      language:document.getElementById("serverLanguage").value
-    });
-    if(error) throw error;
-    document.getElementById("serverUrl").value="";
-    document.getElementById("serverName").value="";
-    await loadAll();
-    toast("Video server added");
-  }catch(e){toast("Server error: "+e.message);}
+ const episode_id=document.getElementById("serverEpisode").value;
+ const video_url=document.getElementById("serverUrl").value.trim();
+ if(!episode_id||!video_url){toast("Select episode and enter video URL");return;}
+ try{
+  const {error}=await db.from("video_servers").insert({
+   episode_id,server_name:document.getElementById("serverName").value.trim()||"Server 1",
+   video_url,quality:document.getElementById("serverQuality").value,
+   language:document.getElementById("serverLanguage").value
+  });
+  if(error)throw error;
+  document.getElementById("serverUrl").value="";
+  document.getElementById("serverName").value="";
+  await loadAll();toast("Video server added");
+ }catch(e){toast("Server error: "+e.message);}
 }
-
 function renderServers(){
-  document.getElementById("serverList").innerHTML=serverData.length ?
-    serverData.map(s=>`
-      <div class="item">
-        <div class="item-info">
-          <b>${safe(s.server_name)} · ${safe(s.quality)}</b>
-          <small>${safe(s.language)} · ${safe(episodeData.find(e=>e.id===s.episode_id)?.title || "Episode")}</small>
-        </div>
-        <button class="secondary" onclick="copyText('${safe(s.video_url)}')">Copy URL</button>
-        <button class="danger" onclick="deleteRow('video_servers','${safe(s.id)}')">Delete</button>
-      </div>
-    `).join("") : "<p class='muted'>No video servers found.</p>";
+ document.getElementById("serverList").innerHTML=serverData.length?serverData.map(s=>`
+  <div class="item">
+   <div class="item-info"><b>${safe(s.server_name)} · ${safe(s.quality)}</b>
+   <small>${safe(s.language)} · ${safe(episodeData.find(e=>String(e.id)===String(s.episode_id))?.title||"Episode")}</small></div>
+   <button class="secondary" onclick="copyText('${safe(s.video_url)}')">Copy URL</button>
+   <button class="danger" onclick="deleteRow('video_servers','${safe(s.id)}')">Delete</button>
+  </div>`).join(""):"<p class='muted'>No video servers found.</p>";
 }
 
 /* COMMENTS */
 function renderComments(){
-  document.getElementById("commentList").innerHTML=commentData.length ?
-    commentData.map(c=>`
-      <div class="item">
-        <div class="item-info">
-          <b>${safe(c.content || c.comment || "Comment")}</b>
-          <small>Anime ID: ${safe(c.anime_id || "—")} · User: ${safe(c.user_id || "—")}</small>
-          <p class="muted">Admin reply: ${safe(c.admin_reply || "No reply yet")}</p>
-          <input id="reply-${safe(c.id)}" placeholder="Write admin reply" value="${safe(c.admin_reply || "")}">
-          <button onclick="replyComment('${safe(c.id)}')">Save Reply</button>
-          <button class="danger" onclick="deleteRow('comments','${safe(c.id)}')">Delete</button>
-        </div>
-      </div>
-    `).join("") : "<p class='muted'>No comments found.</p>";
+ document.getElementById("commentList").innerHTML=commentData.length?commentData.map(c=>`
+  <div class="item"><div class="item-info">
+   <b>${safe(c.content||c.comment||"Comment")}</b>
+   <small>Anime ID: ${safe(c.anime_id||"—")} · User: ${safe(c.user_id||"—")}</small>
+   <p class="muted">Admin reply: ${safe(c.admin_reply||"No reply yet")}</p>
+   <input id="reply-${safe(c.id)}" placeholder="Write admin reply" value="${safe(c.admin_reply||"")}">
+   <button onclick="replyComment('${safe(c.id)}')">Save Reply</button>
+   <button class="danger" onclick="deleteRow('comments','${safe(c.id)}')">Delete</button>
+  </div></div>`).join(""):"<p class='muted'>No comments found.</p>";
 }
-
 async function replyComment(id){
-  const reply=document.getElementById("reply-"+id).value.trim();
-  try{
-    const {error}=await db.from("comments").update({admin_reply:reply}).eq("id",id);
-    if(error) throw error;
-    await loadAll();
-    toast("Admin reply saved");
-  }catch(e){toast("Reply error: "+e.message);}
+ const reply=document.getElementById("reply-"+id).value.trim();
+ try{
+  const {error}=await db.from("comments").update({admin_reply:reply}).eq("id",id);
+  if(error)throw error;await loadAll();toast("Admin reply saved");
+ }catch(e){toast("Reply error: "+e.message);}
 }
 
 /* NOTIFICATIONS */
 async function addNotification(){
-  const title=document.getElementById("notificationTitle").value.trim();
-  const message=document.getElementById("notificationMessage").value.trim();
-
-  if(!title || !message){toast("Enter notification title and message");return;}
-
-  try{
-    const {error}=await db.from("notifications").insert({
-      title,message,
-      is_active:document.getElementById("notificationActive").value==="true"
-    });
-    if(error) throw error;
-    document.getElementById("notificationTitle").value="";
-    document.getElementById("notificationMessage").value="";
-    await loadAll();
-    toast("Notification created");
-  }catch(e){toast("Notification error: "+e.message);}
+ const title=document.getElementById("notificationTitle").value.trim();
+ const message=document.getElementById("notificationMessage").value.trim();
+ if(!title||!message){toast("Enter notification title and message");return;}
+ try{
+  const {error}=await db.from("notifications").insert({
+   title,message,is_active:document.getElementById("notificationActive").value==="true"
+  });
+  if(error)throw error;
+  document.getElementById("notificationTitle").value="";
+  document.getElementById("notificationMessage").value="";
+  await loadAll();toast("Notification created");
+ }catch(e){toast("Notification error: "+e.message);}
 }
-
 function renderNotifications(){
-  document.getElementById("notificationList").innerHTML=notificationData.length ?
-    notificationData.map(n=>`
-      <div class="item">
-        <div class="item-info">
-          <b>${safe(n.title)}</b>
-          <small>${safe(n.message)}</small><br>
-          <span class="badge">${n.is_active?"Active":"Inactive"}</span>
-        </div>
-        <button class="danger" onclick="deleteRow('notifications','${safe(n.id)}')">Delete</button>
-      </div>
-    `).join("") : "<p class='muted'>No notifications found.</p>";
+ document.getElementById("notificationList").innerHTML=notificationData.length?notificationData.map(n=>`
+  <div class="item"><div class="item-info">
+   <b>${safe(n.title)}</b><small>${safe(n.message)}</small><br>
+   <span class="badge">${n.is_active?"Active":"Inactive"}</span>
+  </div><button class="danger" onclick="deleteRow('notifications','${safe(n.id)}')">Delete</button></div>
+ `).join(""):"<p class='muted'>No notifications found.</p>";
 }
 
-/* SELECT MENUS */
+/* SELECTS */
 function fillSelects(){
-  const animeOptions=animeData.map(a=>
-    `<option value="${safe(a.id)}">${safe(a.title)}</option>`
-  ).join("");
-
-  document.getElementById("seasonAnime").innerHTML=animeOptions;
-  document.getElementById("episodeAnime").innerHTML=animeOptions;
-
-  updateSeasonOptions();
-
-  document.getElementById("serverEpisode").innerHTML=episodeData.map(e=>
-    `<option value="${safe(e.id)}">${safe(e.title)} - ${safe(animeData.find(a=>a.id===e.anime_id)?.title || "")}</option>`
-  ).join("");
+ const opts=animeData.map(a=>`<option value="${safe(a.id)}">${safe(a.title)}</option>`).join("");
+ ["seasonAnime","episodeAnime","bulkAnimeSelect"].forEach(id=>{
+  const el=document.getElementById(id),old=el.value;
+  el.innerHTML=opts;
+  if([...el.options].some(o=>o.value===old))el.value=old;
+ });
+ updateSeasonOptions();
+ document.getElementById("serverEpisode").innerHTML=episodeData.map(e=>
+  `<option value="${safe(e.id)}">${safe(e.title)} - ${safe(animeData.find(a=>String(a.id)===String(e.anime_id))?.title||"")}</option>`
+ ).join("");
+ renderEpisodeManagement();
 }
 
-/* COMMON ACTIONS */
+/* COMMON */
 async function deleteRow(table,id){
-  if(!confirm("Are you sure you want to delete this item?")) return;
-  try{
-    const {error}=await db.from(table).delete().eq("id",id);
-    if(error) throw error;
-    await loadAll();
-    toast("Deleted successfully");
-  }catch(e){toast("Delete error: "+e.message);}
+ if(!confirm("Are you sure you want to delete this item?"))return;
+ try{
+  const {error}=await db.from(table).delete().eq("id",id);
+  if(error)throw error;
+  await loadAll();toast("Deleted successfully");
+ }catch(e){toast("Delete error: "+e.message);}
 }
-
 async function copyText(value){
-  try{
-    await navigator.clipboard.writeText(value);
-    toast("URL copied");
-  }catch(e){toast("Could not copy URL");}
+ try{await navigator.clipboard.writeText(value);toast("URL copied");}
+ catch(e){toast("Could not copy URL");}
 }
 
-db.auth.onAuthStateChange((event,session)=>{
-  if(event==="SIGNED_OUT"){
-    currentUser=null;
-  }
+db.auth.onAuthStateChange(event=>{
+ if(event==="SIGNED_OUT")currentUser=null;
 });
-
 checkSession();
 </script>
 </body>
