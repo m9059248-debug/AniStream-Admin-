@@ -6,29 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080d1b">
 <title>AniStream Admin Panel</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root{
-  --bg:#080d1b;--panel:#101a30;--panel2:#14213b;
-  --border:#243654;--blue:#287bff;--text:#edf3ff;
-  --muted:#91a3c2;--red:#ef4444;--green:#22c55e;
-}
+:root{--bg:#080d1b;--panel:#101a30;--panel2:#14213b;--border:#243654;--blue:#287bff;--text:#edf3ff;--muted:#91a3c2;--red:#ef4444;--green:#22c55e}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
 button,input,textarea,select{font:inherit}
-button{
-  border:0;border-radius:9px;padding:11px 15px;
-  background:var(--blue);color:white;font-weight:700;cursor:pointer
-}
+button{border:0;border-radius:9px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer}
 button:hover{filter:brightness(1.12)}
 button:disabled{opacity:.5;cursor:not-allowed}
-input,textarea,select{
-  width:100%;padding:12px;margin:7px 0 13px;
-  border:1px solid var(--border);border-radius:9px;
-  background:#091326;color:white;outline:none
-}
+input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid var(--border);border-radius:9px;background:#091326;color:white;outline:none}
 textarea{min-height:90px;resize:vertical}
 label{font-size:13px;color:#b7c7e2}
 h1,h2,h3{margin-top:0}
@@ -72,26 +59,11 @@ small,.muted{color:var(--muted)}
 .language-list{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0 16px}
 .language-list label{display:flex;gap:5px;align-items:center;background:#091326;border:1px solid var(--border);padding:9px;border-radius:8px}
 .language-list input{width:auto;margin:0}
-.library-poster{width:48px;height:65px;object-fit:cover;border-radius:5px}
 .form-note{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:12px}
-@media(max-width:850px){
- #adminApp{display:block}
- .sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5}
- .brand{padding:8px 5px}
- .nav-wrap{display:flex;overflow-x:auto;gap:5px}
- .nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px}
- .main{padding:15px}
- .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:520px){
- .grid2{grid-template-columns:1fr}
- .main{padding:12px}
- .panel{padding:14px}
- .search-result{align-items:flex-start}
-}
+@media(max-width:850px){#adminApp{display:block}.sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5}.brand{padding:8px 5px}.nav-wrap{display:flex;overflow-x:auto;gap:5px}.nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px}.main{padding:15px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}.main{padding:12px}.panel{padding:14px}.search-result{align-items:flex-start}}
 </style>
 </head>
-
 <body>
 
 <div id="loginScreen">
@@ -123,10 +95,7 @@ small,.muted{color:var(--muted)}
 
  <main class="main">
   <div class="topbar">
-   <div>
-    <h2 id="pageTitle">Dashboard</h2>
-    <small id="adminEmailDisplay">Admin Panel</small>
-   </div>
+   <div><h2 id="pageTitle">Dashboard</h2><small id="adminEmailDisplay">Admin Panel</small></div>
    <button class="danger" onclick="logoutAdmin()">Logout</button>
   </div>
 
@@ -144,32 +113,23 @@ small,.muted{color:var(--muted)}
    </div>
   </section>
 
-  <!-- ANIME -->
   <section id="anime" class="section">
-
    <div class="panel">
-    <h3>🔎 Search Anime (Ultra Auto-Fill)</h3>
-    <p class="muted">Search using AniList or MyAnimeList data.</p>
+    <h3>🔎 Search Anime</h3>
+    <p class="muted">Search anime using AniList. MyAnimeList will be used if AniList has no results.</p>
     <div class="row">
-     <div>
-      <input id="animeQuery" placeholder="Enter anime name...">
-     </div>
-     <div style="flex:0 0 auto">
-      <button id="searchAnimeBtn" onclick="searchAnime()">🔎 Search Anime</button>
-     </div>
+     <div><input id="animeQuery" placeholder="Enter anime name..." onkeydown="if(event.key==='Enter')searchAnime()"></div>
+     <div style="flex:0 0 auto"><button id="searchAnimeBtn" onclick="searchAnime()">🔎 Search Anime</button></div>
     </div>
     <div id="searchResults"></div>
    </div>
 
    <div class="panel">
     <h3>➕ Add New Anime</h3>
-    <p class="muted">Pehle search karke auto-fill karein ya manually details enter karein.</p>
+    <p class="muted">Search first for auto-fill, or enter details manually.</p>
 
     <label>Type (Series / Movie)</label>
-    <select id="aType">
-     <option value="Series">📺 Anime Series</option>
-     <option value="Movie">🎬 Anime Movie</option>
-    </select>
+    <select id="aType"><option value="Series">📺 Anime Series</option><option value="Movie">🎬 Anime Movie</option></select>
 
     <label>Anime ID (URL Friendly)</label>
     <input id="aAnimeId" placeholder="example-anime">
@@ -193,7 +153,7 @@ small,.muted{color:var(--muted)}
     <label>Season / Format</label>
     <input id="aSeason" placeholder="Winter 2026 / TV / Movie">
 
-    <label>Available Languages (Ek ya zyada select karein)</label>
+    <label>Available Languages</label>
     <div class="language-list">
      <label><input type="checkbox" name="animeLanguage" value="Hindi"> Hindi</label>
      <label><input type="checkbox" name="animeLanguage" value="English"> English</label>
@@ -201,7 +161,7 @@ small,.muted{color:var(--muted)}
      <label><input type="checkbox" name="animeLanguage" value="Tamil"> Tamil</label>
      <label><input type="checkbox" name="animeLanguage" value="Telugu"> Telugu</label>
     </div>
-    <p class="form-note">Selected languages database ke anime.language column mein comma-separated save hongi.</p>
+    <p class="form-note">Languages comma-separated format mein database mein save hongi.</p>
 
     <div class="grid2">
      <div>
@@ -214,10 +174,7 @@ small,.muted{color:var(--muted)}
      </div>
      <div>
       <label>Publish</label>
-      <select id="aPublished">
-       <option value="true">Published</option>
-       <option value="false">Draft</option>
-      </select>
+      <select id="aPublished"><option value="true">Published</option><option value="false">Draft</option></select>
      </div>
     </div>
 
@@ -235,120 +192,70 @@ small,.muted{color:var(--muted)}
    </div>
   </section>
 
-  <!-- SEASONS -->
   <section id="seasons" class="section">
    <div class="panel">
     <h3>Add Season</h3>
-    <label>Select Anime</label>
-    <select id="seasonAnime"></select>
-    <label>Season Number</label>
-    <input id="seasonNumber" type="number" min="1" value="1">
-    <label>Season Title</label>
-    <input id="seasonTitle" placeholder="Season 1">
+    <label>Select Anime</label><select id="seasonAnime"></select>
+    <label>Season Number</label><input id="seasonNumber" type="number" min="1" value="1">
+    <label>Season Title</label><input id="seasonTitle" placeholder="Season 1">
     <button onclick="addSeason()">Add Season</button>
    </div>
-   <div class="panel">
-    <h3>Season List</h3>
-    <div id="seasonList">Loading...</div>
-   </div>
+   <div class="panel"><h3>Season List</h3><div id="seasonList">Loading...</div></div>
   </section>
 
-  <!-- EPISODES -->
   <section id="episodes" class="section">
    <div class="panel">
     <h3>Add Episode</h3>
-    <label>Select Anime</label>
-    <select id="episodeAnime" onchange="updateSeasonOptions()"></select>
-    <label>Select Season</label>
-    <select id="episodeSeason"></select>
-    <label>Episode Number</label>
-    <input id="episodeNumber" type="number" min="1" value="1">
-    <label>Episode Title</label>
-    <input id="episodeTitle" placeholder="Episode 1">
-    <label>Description</label>
-    <textarea id="episodeDescription" placeholder="Episode description"></textarea>
+    <label>Select Anime</label><select id="episodeAnime" onchange="updateSeasonOptions()"></select>
+    <label>Select Season</label><select id="episodeSeason"></select>
+    <label>Episode Number</label><input id="episodeNumber" type="number" min="1" value="1">
+    <label>Episode Title</label><input id="episodeTitle" placeholder="Episode 1">
+    <label>Description</label><textarea id="episodeDescription" placeholder="Episode description"></textarea>
     <label>Publish Episode</label>
-    <select id="episodePublished">
-     <option value="true">Published</option>
-     <option value="false">Draft</option>
-    </select>
+    <select id="episodePublished"><option value="true">Published</option><option value="false">Draft</option></select>
     <button onclick="addEpisode()">Add Episode</button>
    </div>
-
    <div class="panel">
     <h3>Episode Management</h3>
     <label>Choose Anime for Episode Management</label>
     <select id="bulkAnimeSelect" onchange="renderEpisodeManagement()"></select>
-    <div class="row">
-     <button class="danger" onclick="deleteAllAnimeEpisodes()">🗑 Delete All Episodes of Selected Anime</button>
-    </div>
-    <p class="form-note">This deletes the selected anime's episodes and their video-server records. Anime and season records remain.</p>
+    <div class="row"><button class="danger" onclick="deleteAllAnimeEpisodes()">🗑 Delete All Episodes of Selected Anime</button></div>
+    <p class="form-note">This deletes selected anime's episodes and their video-server records. Anime and season records remain.</p>
     <div id="episodeList">Loading...</div>
    </div>
   </section>
 
-  <!-- SERVERS -->
   <section id="servers" class="section">
    <div class="panel">
     <h3>Add Video Server</h3>
-    <label>Select Episode</label>
-    <select id="serverEpisode"></select>
-    <label>Server Name</label>
-    <input id="serverName" placeholder="Server 1">
-    <label>Video URL</label>
-    <input id="serverUrl" type="url" placeholder="https://...">
+    <label>Select Episode</label><select id="serverEpisode"></select>
+    <label>Server Name</label><input id="serverName" placeholder="Server 1">
+    <label>Video URL</label><input id="serverUrl" type="url" placeholder="https://...">
     <div class="grid2">
-     <div>
-      <label>Quality</label>
-      <select id="serverQuality">
-       <option>1080p</option><option selected>720p</option><option>480p</option>
-      </select>
-     </div>
-     <div>
-      <label>Audio Language</label>
-      <select id="serverLanguage">
-       <option>Hindi</option><option>Japanese</option><option>English</option><option>Subtitles</option>
-      </select>
-     </div>
+     <div><label>Quality</label><select id="serverQuality"><option>1080p</option><option selected>720p</option><option>480p</option></select></div>
+     <div><label>Audio Language</label><select id="serverLanguage"><option>Hindi</option><option>Japanese</option><option>English</option><option>Subtitles</option></select></div>
     </div>
     <button onclick="addServer()">Add Video Server</button>
    </div>
-   <div class="panel">
-    <h3>Video Server List</h3>
-    <div id="serverList">Loading...</div>
-   </div>
+   <div class="panel"><h3>Video Server List</h3><div id="serverList">Loading...</div></div>
   </section>
 
-  <!-- COMMENTS -->
   <section id="comments" class="section">
-   <div class="panel">
-    <h3>Comments Management</h3>
-    <div id="commentList">Loading...</div>
-   </div>
+   <div class="panel"><h3>Comments Management</h3><div id="commentList">Loading...</div></div>
   </section>
 
-  <!-- NOTIFICATIONS -->
   <section id="notifications" class="section">
    <div class="panel">
     <h3>Create Notification</h3>
-    <label>Notification Title</label>
-    <input id="notificationTitle" placeholder="New episode available!">
-    <label>Message</label>
-    <textarea id="notificationMessage" placeholder="Write notification message"></textarea>
-    <label>Active</label>
-    <select id="notificationActive">
-     <option value="true">Yes</option><option value="false">No</option>
-    </select>
+    <label>Notification Title</label><input id="notificationTitle" placeholder="New episode available!">
+    <label>Message</label><textarea id="notificationMessage" placeholder="Write notification message"></textarea>
+    <label>Active</label><select id="notificationActive"><option value="true">Yes</option><option value="false">No</option></select>
     <button onclick="addNotification()">Create Notification</button>
    </div>
-   <div class="panel">
-    <h3>Notification List</h3>
-    <div id="notificationList">Loading...</div>
-   </div>
+   <div class="panel"><h3>Notification List</h3><div id="notificationList">Loading...</div></div>
   </section>
  </main>
 </div>
-
 <div id="toast"></div>
 
 <script>
@@ -359,6 +266,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null;
 let animeData=[],seasonData=[],episodeData=[],serverData=[],commentData=[],notificationData=[];
 let editingAnimeId=null;
+window.animeSearchResults=[];
 
 function toast(message){
  const el=document.getElementById("toast");
@@ -370,9 +278,8 @@ function safe(v){
  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function slugify(value){
- return String(value||"").toLowerCase().trim()
- .normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
- .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+ return String(value||"").toLowerCase().trim().normalize("NFKD")
+ .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 function setMessage(id,msg){document.getElementById(id).textContent=msg;}
 
@@ -439,46 +346,50 @@ function refreshDashboardUI(){
 }
 async function refreshDashboard(){await loadAll();toast("Dashboard refreshed");}
 
-/* ANILIST + MYANIMELIST SEARCH */
+/* FAST ANIME SEARCH */
 async function searchAnime(){
  const query=document.getElementById("animeQuery").value.trim();
  if(!query){toast("Enter anime name first");return;}
  const btn=document.getElementById("searchAnimeBtn");
  const output=document.getElementById("searchResults");
  btn.disabled=true;btn.textContent="Searching...";
- output.innerHTML="<p class='muted'>Searching AniList and MyAnimeList...</p>";
-
- const tasks=await Promise.allSettled([searchAniList(query),searchJikan(query)]);
- let results=[];
- tasks.forEach((task,i)=>{
-  if(task.status==="fulfilled")results=results.concat(task.value);
-  else console.warn("Search provider error",i,task.reason);
- });
-
- const unique=new Map();
- results.forEach(a=>{
-  const key=(a.title||"").toLowerCase();
-  if(key&&!unique.has(key))unique.set(key,a);
- });
- results=[...unique.values()].slice(0,20);
-
- if(!results.length){
-  output.innerHTML="<p class='muted'>No results found. Try another spelling or enter details manually.</p>";
- }else{
-  output.innerHTML=results.map((a,i)=>`
-   <div class="search-result">
-    <img src="${safe(a.poster)}" onerror="this.style.visibility='hidden'" alt="">
-    <div class="info">
-     <b>${safe(a.title)}</b>
-     <p>${safe(a.source)} · ${safe(a.format||"Anime")} · ${safe(a.year||"Year unknown")}</p>
-     <p>${safe((a.genres||[]).join(", "))}</p>
-    </div>
-    <button onclick="selectSearchResult(${i})">Select</button>
-   </div>
-  `).join("");
+ output.innerHTML="<p class='muted'>Searching AniList...</p>";
+ window.animeSearchResults=[];
+ try{
+  let results=[];
+  try{
+   results=await searchAniList(query);
+  }catch(e){console.warn("AniList:",e);}
+  if(!results.length){
+   output.innerHTML="<p class='muted'>Trying MyAnimeList...</p>";
+   try{results=await searchJikan(query);}catch(e){console.warn("MyAnimeList:",e);}
+  }
+  const unique=new Map();
+  results.forEach(a=>{
+   const key=(a.title||"").toLowerCase();
+   if(key&&!unique.has(key))unique.set(key,a);
+  });
+  results=[...unique.values()].slice(0,15);
   window.animeSearchResults=results;
+  if(!results.length){
+   output.innerHTML="<p class='muted'>No results found. Try another spelling or enter details manually.</p>";
+  }else{
+   output.innerHTML=results.map((a,i)=>`
+    <div class="search-result">
+     <img src="${safe(a.poster)}" onerror="this.style.visibility='hidden'" alt="">
+     <div class="info">
+      <b>${safe(a.title)}</b>
+      <p>${safe(a.source)} · ${safe(a.format||"Anime")} · ${safe(a.year||"Year unknown")}</p>
+      <p>${safe((a.genres||[]).join(", "))}</p>
+     </div>
+     <button onclick="selectSearchResult(${i})">Select</button>
+    </div>`).join("");
+  }
+ }catch(e){
+  output.innerHTML="<p class='muted'>Search error: "+safe(e.message)+"</p>";
+ }finally{
+  btn.disabled=false;btn.textContent="🔎 Search Anime";
  }
- btn.disabled=false;btn.textContent="🔎 Search Anime";
 }
 async function searchAniList(query){
  const gql=`query ($search:String) {
@@ -486,35 +397,44 @@ async function searchAniList(query){
    media(search:$search,type:ANIME,sort:SEARCH_MATCH) {
     id idMal title { romaji english native }
     description(asHtml:false) coverImage { extraLarge large }
-    bannerImage genres format seasonYear season status episodes
+    bannerImage genres format seasonYear season status
    }
   }
  }`;
- const response=await fetch("https://graphql.anilist.co",{
-  method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-  body:JSON.stringify({query:gql,variables:{search:query}})
- });
- if(!response.ok)throw new Error("AniList search failed");
- const json=await response.json();
- return (json.data?.Page?.media||[]).map(a=>({
-  source:"AniList",sourceId:a.id,title:a.title.english||a.title.romaji||a.title.native,
-  poster:a.coverImage?.extraLarge||a.coverImage?.large||"",
-  banner:a.bannerImage||"",description:(a.description||"").replace(/<[^>]*>/g," "),
-  genres:a.genres||[],format:a.format||"",year:a.seasonYear||"",
-  season:a.season||"",status:a.status||"",idMal:a.idMal
- }));
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),8000);
+ try{
+  const response=await fetch("https://graphql.anilist.co",{
+   method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+   body:JSON.stringify({query:gql,variables:{search:query}}),signal:controller.signal
+  });
+  if(!response.ok)throw new Error("AniList response "+response.status);
+  const json=await response.json();
+  if(json.errors)throw new Error(json.errors[0]?.message||"AniList error");
+  return (json.data?.Page?.media||[]).map(a=>({
+   source:"AniList",sourceId:a.id,title:a.title.english||a.title.romaji||a.title.native,
+   poster:a.coverImage?.extraLarge||a.coverImage?.large||"",
+   banner:a.bannerImage||"",description:(a.description||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(),
+   genres:a.genres||[],format:a.format||"",year:a.seasonYear||"",
+   season:a.season||"",status:a.status||"",idMal:a.idMal
+  }));
+ }finally{clearTimeout(timer);}
 }
 async function searchJikan(query){
- const response=await fetch("https://api.jikan.moe/v4/anime?q="+encodeURIComponent(query)+"&limit=10&sfw=true");
- if(!response.ok)throw new Error("MyAnimeList search failed");
- const json=await response.json();
- return (json.data||[]).map(a=>({
-  source:"MyAnimeList",sourceId:a.mal_id,title:a.title_english||a.title,
-  poster:a.images?.jpg?.large_image_url||a.images?.jpg?.image_url||"",
-  banner:"",description:a.synopsis||"",genres:(a.genres||[]).map(g=>g.name),
-  format:a.type||"",year:a.year||a.aired?.prop?.from?.year||"",
-  season:a.season||"",status:a.status||"",idMal:a.mal_id
- }));
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),8000);
+ try{
+  const response=await fetch("https://api.jikan.moe/v4/anime?q="+encodeURIComponent(query)+"&limit=10&sfw=true",{signal:controller.signal});
+  if(!response.ok)throw new Error("MyAnimeList response "+response.status);
+  const json=await response.json();
+  return (json.data||[]).map(a=>({
+   source:"MyAnimeList",sourceId:a.mal_id,title:a.title_english||a.title,
+   poster:a.images?.jpg?.large_image_url||a.images?.jpg?.image_url||"",
+   banner:"",description:a.synopsis||"",genres:(a.genres||[]).map(g=>g.name),
+   format:a.type||"",year:a.year||a.aired?.prop?.from?.year||"",
+   season:a.season||"",status:a.status||"",idMal:a.mal_id
+  }));
+ }finally{clearTimeout(timer);}
 }
 function selectSearchResult(index){
  const a=window.animeSearchResults?.[index];if(!a)return;
@@ -525,21 +445,18 @@ function selectSearchResult(index){
  document.getElementById("aDescription").value=a.description||"";
  document.getElementById("aGenres").value=(a.genres||[]).join(", ");
  document.getElementById("aSeason").value=[a.season,a.year,a.format].filter(Boolean).join(" / ");
-
  const format=(a.format||"").toLowerCase();
  document.getElementById("aType").value=format==="movie"?"Movie":"Series";
-
  const status=(a.status||"").toLowerCase();
  document.getElementById("aStatus").value=
   status==="not_yet_released"||status==="upcoming"?"upcoming":
   status==="finished"||status==="completed"?"completed":"ongoing";
-
  updatePosterPreview();
- document.getElementById("searchResults").innerHTML="<p class='muted'>Selected: "+safe(a.title)+". Details filled below. Please review before saving.</p>";
+ document.getElementById("searchResults").innerHTML="<p class='muted'>Selected: "+safe(a.title)+". Details filled below. Review before saving.</p>";
  toast("Anime details auto-filled");
 }
 
-/* ANIME SAVE / EDIT */
+/* ANIME SAVE / EDIT - MATCHES YOUR SUPABASE COLUMNS */
 function selectedLanguages(){
  return [...document.querySelectorAll('input[name="animeLanguage"]:checked')].map(x=>x.value);
 }
@@ -552,23 +469,10 @@ document.getElementById("aPoster").addEventListener("input",updatePosterPreview)
 document.getElementById("aTitle").addEventListener("input",()=>{
  if(!editingAnimeId)document.getElementById("aAnimeId").value=slugify(document.getElementById("aTitle").value);
 });
+document.getElementById("aAnimeId").addEventListener("input",e=>{
+ e.target.value=slugify(e.target.value);
+});
 
-async function writeAnimeRow(row,id){
- // Optional columns are retried without them if the database reports that a column is missing.
- let payload={...row};
- for(let attempt=0;attempt<4;attempt++){
-  let query=id?db.from("anime").update(payload).eq("id",id):db.from("anime").insert(payload);
-  const {error}=await query;
-  if(!error)return;
-  const match=error.message.match(/column ["']?([a-zA-Z0-9_]+)["']? does not exist|Could not find the ['"]([^'"]+)['"] column/i);
-  const missing=match?.[1]||match?.[2];
-  if(missing&&Object.prototype.hasOwnProperty.call(payload,missing)){
-   delete payload[missing];continue;
-  }
-  throw error;
- }
- throw new Error("Could not save anime. Please check the anime table columns.");
-}
 async function saveAnime(){
  const title=document.getElementById("aTitle").value.trim();
  if(!title){toast("Anime name is required");return;}
@@ -577,28 +481,47 @@ async function saveAnime(){
  const languages=selectedLanguages();
  if(!languages.length){toast("Select at least one language");return;}
 
+ const genres=document.getElementById("aGenres").value.split(",").map(x=>x.trim()).filter(Boolean);
+ const yearText=document.getElementById("aSeason").value.match(/\b(19|20)\d{2}\b/);
+ const releaseYear=yearText?Number(yearText[0]):null;
+
+ // These column names match the anime table in your Supabase project.
  const row={
   anime_id:animeId,
-  title,
-  thumbnail_url:document.getElementById("aPoster").value.trim(),
-  banner_url:document.getElementById("aBanner").value.trim(),
-  description:document.getElementById("aDescription").value.trim(),
-  genre:document.getElementById("aGenres").value.trim(),
-  season:document.getElementById("aSeason").value.trim(),
+  title:title,
+  description:document.getElementById("aDescription").value.trim()||null,
+  poster_uri:document.getElementById("aPoster").value.trim()||null,
+  banner_url:document.getElementById("aBanner").value.trim()||null,
+  genres:genres,
+  release_year:releaseYear,
+  anime_type:document.getElementById("aType").value,
+  season:document.getElementById("aSeason").value.trim()||null,
   language:languages.join(", "),
   status:document.getElementById("aStatus").value,
-  type:document.getElementById("aType").value,
   is_published:document.getElementById("aPublished").value==="true"
  };
+
  const btn=document.getElementById("saveAnimeBtn");
  btn.disabled=true;setMessage("animeFormMessage","Saving anime...");
  try{
-  await writeAnimeRow(row,editingAnimeId);
+  let result;
+  if(editingAnimeId){
+   result=await db.from("anime").update(row).eq("id",editingAnimeId);
+  }else{
+   result=await db.from("anime").insert(row);
+  }
+  if(result.error)throw result.error;
   await loadAll();
   toast(editingAnimeId?"Anime updated successfully":"Anime added successfully");
   resetAnimeForm();
  }catch(e){
-  console.error(e);setMessage("animeFormMessage","Save error: "+e.message);toast("Anime error: "+e.message);
+  console.error("Anime save error:",e);
+  let message=e.message||"Unknown database error";
+  if(message.toLowerCase().includes("duplicate")||message.includes("unique")){
+   message="This Anime ID already exists. Change the Anime ID and try again.";
+  }
+  setMessage("animeFormMessage","Save error: "+message);
+  toast("Anime save failed: "+message);
  }finally{
   btn.disabled=false;
  }
@@ -620,13 +543,13 @@ function editAnime(id){
  editingAnimeId=id;
  document.getElementById("aAnimeId").value=a.anime_id||"";
  document.getElementById("aTitle").value=a.title||"";
- document.getElementById("aPoster").value=a.thumbnail_url||a.poster_url||"";
+ document.getElementById("aPoster").value=a.poster_uri||"";
  document.getElementById("aBanner").value=a.banner_url||"";
  document.getElementById("aDescription").value=a.description||"";
- document.getElementById("aGenres").value=Array.isArray(a.genre)?a.genre.join(", "):(a.genre||"");
+ document.getElementById("aGenres").value=Array.isArray(a.genres)?a.genres.join(", "):(a.genres||"");
  document.getElementById("aSeason").value=a.season||"";
  document.getElementById("aStatus").value=(a.status||"ongoing").toLowerCase();
- document.getElementById("aType").value=a.type||"Series";
+ document.getElementById("aType").value=a.anime_type||"Series";
  document.getElementById("aPublished").value=String(a.is_published!==false);
  const langs=String(a.language||"").split(",").map(x=>x.trim().toLowerCase());
  document.querySelectorAll('input[name="animeLanguage"]').forEach(x=>x.checked=langs.includes(x.value.toLowerCase()));
@@ -640,10 +563,11 @@ function renderAnime(){
  const rows=animeData.filter(a=>(a.title||"").toLowerCase().includes(search));
  document.getElementById("animeList").innerHTML=rows.length?rows.map(a=>`
   <div class="item">
-   <img class="library-poster" src="${safe(a.thumbnail_url||a.poster_url||"")}" onerror="this.style.display='none'" alt="">
+   <img class="library-poster" src="${safe(a.poster_uri||"")}" onerror="this.style.display='none'" alt="">
    <div class="item-info">
     <b>${safe(a.title)}</b>
-    <small>${safe(a.type||"Anime")} · ${safe(a.status||"")} · ${safe(a.language||"")}</small>
+    <small>${safe(a.anime_type||"Anime")} · ${safe(a.status||"")} · ${safe(a.language||"")}</small>
+    <small>ID: ${safe(a.anime_id||"—")}</small>
    </div>
    <button class="secondary" onclick="editAnime('${safe(a.id)}')">Edit</button>
    <button class="danger" onclick="deleteRow('anime','${safe(a.id)}')">Delete</button>
@@ -835,7 +759,6 @@ async function copyText(value){
  try{await navigator.clipboard.writeText(value);toast("URL copied");}
  catch(e){toast("Could not copy URL");}
 }
-
 db.auth.onAuthStateChange(event=>{
  if(event==="SIGNED_OUT")currentUser=null;
 });
