@@ -75,6 +75,15 @@ small,.muted{color:var(--muted)}
 .divider{height:1px;background:var(--border);margin:18px 0}
 .rule-box{background:#0b1528;border:1px solid #28426b;border-radius:10px;padding:13px;margin-bottom:14px;font-size:13px;line-height:1.5}
 .code-box{background:#060b16;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:monospace;font-size:12px;color:#a5f3fc;overflow-x:auto;white-space:pre}
+/* App Users Cards & Avatar Styles */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.user-card{background:#0b1528;border:1px solid var(--border);border-radius:12px;padding:15px;display:flex;gap:13px;align-items:flex-start}
+.user-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--blue);flex-shrink:0;background:#172b4d}
+.user-avatar-fallback{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#287bff,#164899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0;border:2px solid #438cff}
+.user-meta{flex:1;min-width:0}
+.user-meta b{font-size:15px;color:#fff;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-meta .user-email{font-size:12.5px;color:#9bb4db;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:2px 0 7px}
+.user-meta .user-detail-line{font-size:11.5px;color:var(--muted);line-height:1.55;overflow-wrap:anywhere}
 /* Popup Preview Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(4,8,18,.82);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40}
 .popup-card{width:100%;max-width:440px;background:linear-gradient(160deg,#12203d,#0c1528);border:1px solid #35558a;border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.6);position:relative}
@@ -121,6 +130,7 @@ small,.muted{color:var(--muted)}
   <div class="brand">AniStream <span>Admin</span></div>
   <div class="nav-wrap">
    <button class="nav-btn active" onclick="showSection('dashboard',this)">📊 Dashboard & Analytics</button>
+   <button class="nav-btn" onclick="showSection('users',this)">👥 App Users</button>
    <button class="nav-btn" onclick="showSection('anime',this)">🎌 Anime Manager</button>
    <button class="nav-btn" onclick="showSection('content',this)">🎬 Episodes & Links</button>
    <button class="nav-btn" onclick="showSection('schedule',this)">📅 Schedule Manager</button>
@@ -149,13 +159,23 @@ small,.muted{color:var(--muted)}
     <div class="stat"><span>Total Anime</span><strong id="countAnime">0</strong></div>
     <div class="stat"><span>Total Seasons</span><strong id="countSeasons">0</strong></div>
     <div class="stat"><span>Total Episodes</span><strong id="countEpisodes">0</strong></div>
-    <div class="stat"><span>Total Comments</span><strong id="countComments">0</strong></div>
+    <div class="stat"><span>Logged-In App Users</span><strong id="countUsers">0</strong></div>
    </div>
    <div class="cards">
-    <div class="stat"><span>Total Visitors</span><strong id="countVisitors">0</strong></div>
+    <div class="stat"><span>Total Comments</span><strong id="countComments">0</strong></div>
     <div class="stat"><span>Total Views</span><strong id="countViews">0</strong></div>
-    <div class="stat"><span>Total Likes</span><strong id="countLikes">0</strong></div>
+    <div class="stat"><span>Total Likes / My List</span><strong id="countLikes">0</strong></div>
     <div class="stat"><span>Active Popups / Alerts</span><strong id="countPopups">0</strong></div>
+   </div>
+
+   <div class="panel">
+    <div class="row" style="margin-bottom:10px">
+     <h3 style="margin:0">👥 Recent Logged-In App Users</h3>
+     <div style="flex:0 0 auto">
+      <button class="secondary" onclick="showSection('users',document.querySelectorAll('.nav-btn')[1])">View All Users →</button>
+     </div>
+    </div>
+    <div id="dashboardRecentUsers">Loading users...</div>
    </div>
 
    <div class="panel">
@@ -165,6 +185,32 @@ small,.muted{color:var(--muted)}
      • <b>Popup Routing Rule:</b> Homepage Popup केवल Homepage (<code>/</code>) पर दिखेगा; Anime Details और Watch Page पर ब्लॉक रहेगा।<br>
      • <b>Download Links Mode:</b> Direct 480p / 720p / 1080p Links एक्टिव हैं (कोई Shortener नहीं लगा है)।
     </div>
+   </div>
+  </section>
+
+  <!-- 1B. LOGGED-IN APP USERS SECTION -->
+  <section id="users" class="section">
+   <div class="cards">
+    <div class="stat"><span>Total Registered Users</span><strong id="usersTotalCount">0</strong></div>
+    <div class="stat"><span>Users with Custom Avatar</span><strong id="usersAvatarCount">0</strong></div>
+    <div class="stat"><span>Total My List Saves</span><strong id="usersMyListTotal">0</strong></div>
+    <div class="stat"><span>Active Commenters</span><strong id="usersCommenterCount">0</strong></div>
+   </div>
+
+   <div class="panel">
+    <div class="row" style="margin-bottom:8px">
+     <div>
+      <h3 style="margin:0">👥 App Logged-In Users Directory</h3>
+      <small>जो भी यूज़र आपके Android App में Login या Sign Up करेगा उसकी पूरी डिटेल यहाँ दिखेगी।</small>
+     </div>
+     <div style="flex:0 0 auto">
+      <button onclick="refreshDashboard()">🔄 Refresh Users</button>
+     </div>
+    </div>
+
+    <input id="userSearchInput" placeholder="🔎 Search user by name, email or User ID..." oninput="renderUsersSection()">
+    <div id="userSyncNotice" class="rule-box hidden"></div>
+    <div id="usersDirectoryList" class="user-grid">Loading...</div>
    </div>
   </section>
 
@@ -616,20 +662,107 @@ small,.muted{color:var(--muted)}
   <!-- 8. SQL & RLS HELPER -->
   <section id="sqlsetup" class="section">
    <div class="panel">
-    <h3>🛠 Supabase SQL Schema & RLS Upgrade Helper</h3>
-    <p class="muted">आपके मौजूदा डेटाबेस को बिना किसी नुकसान के नए फीचर्स (Direct Download URLs, Schedules, Download Verification Settings, और Popup Expiry/Targeting) के साथ जोड़ने के लिए यह SQL अपने Supabase SQL Editor में एक बार रन करें:</p>
-    <button class="secondary" style="margin-bottom:10px" onclick="copySqlSchema()">📋 Copy Safe SQL Migration</button>
-    <div id="sqlCodeBlock" class="code-box">-- 1. Add Direct Download URL column to video_servers (Safe if already exists)
+    <h3>🛠 Supabase SQL Schema & App Users Sync Helper</h3>
+    <p class="muted">ऐप में लॉगिन करने वाले सभी यूज़र्स की डिटेल्स (Name, Email, Profile Photo, Last Login, My List) को Admin Panel में ऑटोमैटिक दिखाने और सभी नए फीचर्स चालू करने के लिए नीचे वाला SQL कॉपी करके Supabase SQL Editor में एक बार Run करें:</p>
+    <button class="secondary" style="margin-bottom:10px" onclick="copySqlSchema()">📋 Copy Full SQL Migration (With App Users Sync)</button>
+    <div id="sqlCodeBlock" class="code-box">-- 1. Create App Users Profile Table & Auto-Sync Trigger from Supabase Auth
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+  id uuid PRIMARY KEY,
+  email text,
+  full_name text,
+  avatar_url text,
+  my_list_count int DEFAULT 0,
+  created_at timestamptz,
+  last_sign_in_at timestamptz,
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION public.sync_auth_user_to_profile()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  v_name text;
+  v_avatar text;
+  v_list_count int;
+BEGIN
+  v_name := COALESCE(
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'full_name'), ''),
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''),
+    split_part(COALESCE(NEW.email, 'User'), '@', 1)
+  );
+  v_avatar := COALESCE(NEW.raw_user_meta_data->>'avatar_url', '');
+  IF jsonb_typeof(NEW.raw_user_meta_data->'my_list') = 'array' THEN
+    v_list_count := jsonb_array_length(NEW.raw_user_meta_data->'my_list');
+  ELSE
+    v_list_count := 0;
+  END IF;
+
+  INSERT INTO public.user_profiles (
+    id, email, full_name, avatar_url, my_list_count, created_at, last_sign_in_at, updated_at
+  )
+  VALUES (
+    NEW.id, NEW.email, v_name, v_avatar, v_list_count, NEW.created_at, NEW.last_sign_in_at, now()
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = EXCLUDED.full_name,
+    avatar_url = CASE WHEN EXCLUDED.avatar_url <> '' THEN EXCLUDED.avatar_url ELSE public.user_profiles.avatar_url END,
+    my_list_count = EXCLUDED.my_list_count,
+    last_sign_in_at = EXCLUDED.last_sign_in_at,
+    updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_sync_auth_user_to_profile ON auth.users;
+CREATE TRIGGER trg_sync_auth_user_to_profile
+AFTER INSERT OR UPDATE ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.sync_auth_user_to_profile();
+
+INSERT INTO public.user_profiles (
+  id, email, full_name, avatar_url, my_list_count, created_at, last_sign_in_at, updated_at
+)
+SELECT
+  u.id,
+  u.email,
+  COALESCE(
+    NULLIF(TRIM(u.raw_user_meta_data->>'full_name'), ''),
+    NULLIF(TRIM(u.raw_user_meta_data->>'name'), ''),
+    split_part(COALESCE(u.email, 'User'), '@', 1)
+  ),
+  COALESCE(u.raw_user_meta_data->>'avatar_url', ''),
+  CASE WHEN jsonb_typeof(u.raw_user_meta_data->'my_list') = 'array' THEN jsonb_array_length(u.raw_user_meta_data->'my_list') ELSE 0 END,
+  u.created_at,
+  u.last_sign_in_at,
+  now()
+FROM auth.users u
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email,
+  full_name = EXCLUDED.full_name,
+  avatar_url = EXCLUDED.avatar_url,
+  my_list_count = EXCLUDED.my_list_count,
+  last_sign_in_at = EXCLUDED.last_sign_in_at,
+  updated_at = now();
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON TABLE public.user_profiles TO anon, authenticated, service_role;
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow read access to user_profiles" ON public.user_profiles;
+CREATE POLICY "Allow read access to user_profiles" ON public.user_profiles FOR SELECT TO public, anon, authenticated USING (true);
+
+-- 2. Add Direct Download URL column to video_servers
 ALTER TABLE public.video_servers ADD COLUMN IF NOT EXISTS download_url text;
 
--- 2. Add Popup & Announcement targeting/expiry columns to notifications
+-- 3. Add Popup & Announcement targeting/expiry columns to notifications
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS notif_type text DEFAULT 'homepage_popup';
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS anime_id uuid;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS episode_id uuid;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS starts_at timestamptz;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS expires_at timestamptz;
 
--- 3. Create Anime Schedules table
+-- 4. Create Anime Schedules table
 CREATE TABLE IF NOT EXISTS public.schedules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   anime_id uuid REFERENCES public.anime(id) ON DELETE CASCADE,
@@ -640,14 +773,14 @@ CREATE TABLE IF NOT EXISTS public.schedules (
   created_at timestamptz DEFAULT now()
 );
 
--- 4. Create Site Settings table for Download Verification & 24h Unlock
+-- 5. Create Site Settings table for Download Verification & 24h Unlock
 CREATE TABLE IF NOT EXISTS public.site_settings (
   key text PRIMARY KEY,
   value jsonb NOT NULL,
   updated_at timestamptz DEFAULT now()
 );
 
--- 5. Create 24-Hour Verified Download Tokens table (For S2S Ad Callback)
+-- 6. Create 24-Hour Verified Download Tokens table
 CREATE TABLE IF NOT EXISTS public.download_tokens (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_identifier text NOT NULL,
@@ -657,7 +790,9 @@ CREATE TABLE IF NOT EXISTS public.download_tokens (
   verified boolean DEFAULT false,
   expires_at timestamptz NOT NULL,
   created_at timestamptz DEFAULT now()
-);</div>
+);
+
+NOTIFY pgrst, 'reload schema';</div>
    </div>
   </section>
  </main>
@@ -683,7 +818,8 @@ const SUPABASE_KEY="sb_publishable_h-Alm01lWCWvvlWcW-Uqyg_iAub4QH3";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let currentUser=null;
-let animeData=[],seasonData=[],episodeData=[],serverData=[],commentData=[],notificationData=[],scheduleData=[];
+let animeData=[],seasonData=[],episodeData=[],serverData=[],commentData=[],notificationData=[],scheduleData=[],userProfilesData=[],myListData=[];
+let userProfilesTableReady=true;
 let editingAnimeId=null;
 let editingSeasonId=null;
 let editingEpisodeId=null;
@@ -761,6 +897,7 @@ function showSection(id,button){
  if(button)button.classList.add("active");
  const titles={
   dashboard:"Dashboard & Analytics",
+  users:"Logged-In App Users Directory",
   anime:"Anime Manager",
   content:"Episodes, Stream & Download Links",
   schedule:"Anime Schedule Manager",
@@ -772,7 +909,7 @@ function showSection(id,button){
  document.getElementById("pageTitle").textContent=titles[id]||"Admin Panel";
 }
 
-/* SAFE DATA LOADER (Never crashes if optional table isn't created yet) */
+/* SAFE DATA LOADER */
 async function safeGetRows(table,order="created_at"){
  try{
   const {data,error}=await db.from(table).select("*").order(order,{ascending:false});
@@ -780,6 +917,19 @@ async function safeGetRows(table,order="created_at"){
   return data||[];
  }catch(e){
   console.warn(`Table [${table}] load skipped:`,e.message);
+  return [];
+ }
+}
+
+async function loadUserProfilesSafe(){
+ try{
+  const {data,error}=await db.from("user_profiles").select("*").order("last_sign_in_at",{ascending:false});
+  if(error)throw error;
+  userProfilesTableReady=true;
+  return data||[];
+ }catch(e){
+  userProfilesTableReady=false;
+  console.warn("user_profiles table not created yet:",e.message);
   return [];
  }
 }
@@ -793,11 +943,14 @@ async function loadAll(){
    safeGetRows("video_servers"),
    safeGetRows("comments"),
    safeGetRows("notifications"),
-   safeGetRows("schedules")
+   safeGetRows("schedules"),
+   loadUserProfilesSafe(),
+   safeGetRows("my_list")
   ]);
-  [animeData,seasonData,episodeData,serverData,commentData,notificationData,scheduleData]=results;
+  [animeData,seasonData,episodeData,serverData,commentData,notificationData,scheduleData,userProfilesData,myListData]=results;
   await loadVerificationSettings();
   await refreshDashboardUI();
+  renderUsersSection();
   renderAnime();
   renderSeasons();
   renderEpisodeManagement();
@@ -811,14 +964,174 @@ async function loadAll(){
  }
 }
 
+/* MERGE APP USERS FROM user_profiles + my_list + comments */
+function getMergedAppUsers(){
+ const map=new Map();
+
+ userProfilesData.forEach(u=>{
+  if(!u.id)return;
+  map.set(String(u.id),{
+   id:String(u.id),
+   email:u.email||"",
+   full_name:u.full_name|| (u.email?u.email.split("@")[0]:"AniStream User"),
+   avatar_url:u.avatar_url||"",
+   my_list_count:Number(u.my_list_count||0),
+   created_at:u.created_at||"",
+   last_sign_in_at:u.last_sign_in_at||u.updated_at||u.created_at||"",
+   saved_anime_titles:[],
+   comment_count:0
+  });
+ });
+
+ // Enrich with my_list table rows
+ myListData.forEach(item=>{
+  const uid=String(item.user_id||"");
+  if(!uid)return;
+  if(!map.has(uid)){
+   map.set(uid,{
+    id:uid,
+    email:"",
+    full_name:"User • "+uid.slice(0,6),
+    avatar_url:"",
+    my_list_count:0,
+    created_at:item.created_at||"",
+    last_sign_in_at:item.created_at||"",
+    saved_anime_titles:[],
+    comment_count:0
+   });
+  }
+  const entry=map.get(uid);
+  const animeObj=animeData.find(a=>String(a.id)===String(item.anime_id));
+  if(animeObj&&!entry.saved_anime_titles.includes(animeObj.title)){
+   entry.saved_anime_titles.push(animeObj.title);
+  }
+ });
+
+ // Enrich with comments activity & extract embedded [Name]
+ commentData.forEach(c=>{
+  const uid=String(c.user_id||"");
+  if(!uid)return;
+  const rawText=String(c.content||c.comment_text||c.comment||"");
+  let extractedName=c.user_name||c.username||"";
+  if(!extractedName&&rawText.startsWith("[")&&rawText.includes("] ")){
+   extractedName=rawText.substring(1,rawText.indexOf("] ")).trim();
+  }
+  if(!map.has(uid)){
+   map.set(uid,{
+    id:uid,
+    email:"",
+    full_name:extractedName||("User • "+uid.slice(0,6)),
+    avatar_url:"",
+    my_list_count:0,
+    created_at:c.created_at||"",
+    last_sign_in_at:c.created_at||"",
+    saved_anime_titles:[],
+    comment_count:0
+   });
+  }
+  const entry=map.get(uid);
+  if(extractedName&&(entry.full_name.startsWith("User •")||!entry.full_name)){
+   entry.full_name=extractedName;
+  }
+  entry.comment_count+=1;
+ });
+
+ // Sync final My List counts
+ map.forEach(entry=>{
+  if(entry.saved_anime_titles.length>entry.my_list_count){
+   entry.my_list_count=entry.saved_anime_titles.length;
+  }
+ });
+
+ return [...map.values()].sort((a,b)=>{
+  const tA=new Date(a.last_sign_in_at||a.created_at||0).getTime();
+  const tB=new Date(b.last_sign_in_at||b.created_at||0).getTime();
+  return tB-tA;
+ });
+}
+
+function formatDateTimeIST(iso){
+ if(!iso)return "Active";
+ const d=new Date(iso);
+ if(isNaN(d.getTime()))return String(iso).slice(0,10);
+ return d.toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+
+function buildUserCardHTML(u){
+ const name=u.full_name||"AniStream User";
+ const initial=(name.trim().charAt(0)||"U").toUpperCase();
+ const hasValidAvatar=u.avatar_url&&(u.avatar_url.startsWith("http")||u.avatar_url.startsWith("data:image"));
+ const avatarHTML=hasValidAvatar
+  ?`<img class="user-avatar" src="${safe(u.avatar_url)}" alt="${safe(name)}">`
+  :`<div class="user-avatar-fallback">${safe(initial)}</div>`;
+
+ const joinedText=u.created_at?String(u.created_at).slice(0,10):"—";
+ const lastLoginText=formatDateTimeIST(u.last_sign_in_at);
+ const savedListNames=u.saved_anime_titles.length?u.saved_anime_titles.slice(0,4).join(", "):"";
+
+ return `
+ <div class="user-card">
+  ${avatarHTML}
+  <div class="user-meta">
+   <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <b>${safe(name)}</b>
+    <span class="badge green" style="margin:0">VERIFIED</span>
+   </div>
+   <div class="user-email">${safe(u.email||"Email synced via Supabase Auth")}</div>
+   <div class="user-detail-line">🟢 <b>Last Login:</b> ${safe(lastLoginText)}</div>
+   <div class="user-detail-line">📅 <b>Joined:</b> ${safe(joinedText)}</div>
+   <div class="user-detail-line">❤️ <b>My List:</b> ${safe(u.my_list_count)} Anime &nbsp;|&nbsp; 💬 <b>Comments:</b> ${safe(u.comment_count)}</div>
+   ${savedListNames?`<div class="user-detail-line">🎌 <b>Saved:</b> ${safe(savedListNames)}</div>`:""}
+   <div class="user-detail-line" style="font-size:10.5px;margin-top:3px;color:#6f84a6">🆔 ${safe(u.id)}</div>
+  </div>
+ </div>`;
+}
+
+function renderUsersSection(){
+ const allUsers=getMergedAppUsers();
+ const query=(document.getElementById("userSearchInput")?.value||"").toLowerCase().trim();
+
+ document.getElementById("usersTotalCount").textContent=allUsers.length;
+ document.getElementById("usersAvatarCount").textContent=allUsers.filter(u=>u.avatar_url).length;
+ document.getElementById("usersMyListTotal").textContent=allUsers.reduce((sum,u)=>sum+Number(u.my_list_count||0),0);
+ document.getElementById("usersCommenterCount").textContent=allUsers.filter(u=>u.comment_count>0).length;
+
+ const noticeEl=document.getElementById("userSyncNotice");
+ if(!userProfilesTableReady){
+  noticeEl.classList.remove("hidden");
+  noticeEl.innerHTML=`⚠️ <b>Full Email & Last Login Sync Notice:</b> अभी केवल My List और Comments वाले यूज़र्स दिख रहे हैं। सभी लॉगिन यूज़र्स का Email, Photo और Last Login देखने के लिए बाईं तरफ <b>🛠 SQL & RLS Helper</b> टैब खोलें और SQL कॉपी करके Supabase SQL Editor में एक बार Run करें।`;
+ }else{
+  noticeEl.classList.add("hidden");
+ }
+
+ const filtered=allUsers.filter(u=>
+  (u.full_name||"").toLowerCase().includes(query)||
+  (u.email||"").toLowerCase().includes(query)||
+  (u.id||"").toLowerCase().includes(query)
+ );
+
+ const dirEl=document.getElementById("usersDirectoryList");
+ dirEl.innerHTML=filtered.length
+  ?filtered.map(buildUserCardHTML).join("")
+  :`<p class="muted">No logged-in app users found.</p>`;
+
+ const dashRecentEl=document.getElementById("dashboardRecentUsers");
+ if(dashRecentEl){
+  dashRecentEl.innerHTML=allUsers.length
+   ?`<div class="user-grid">${allUsers.slice(0,4).map(buildUserCardHTML).join("")}</div>`
+   :`<p class="muted">No app users synced yet. Run the SQL from SQL & RLS Helper tab to sync all Supabase Auth users.</p>`;
+ }
+}
+
 async function refreshDashboardUI(){
+ const allUsers=getMergedAppUsers();
  document.getElementById("countAnime").textContent=animeData.length;
  document.getElementById("countSeasons").textContent=seasonData.length;
  document.getElementById("countEpisodes").textContent=episodeData.length;
+ document.getElementById("countUsers").textContent=allUsers.length;
  document.getElementById("countComments").textContent=commentData.length;
 
- // Calculate Views, Likes, Visitors from anime/episodes or analytics table
- let totalViews=0,totalLikes=0,totalVisitors=0;
+ let totalViews=0,totalLikes=myListData.length;
  animeData.forEach(a=>{
   totalViews+=Number(a.views||a.view_count||0);
   totalLikes+=Number(a.likes||a.like_count||0);
@@ -831,20 +1144,18 @@ async function refreshDashboardUI(){
   const {data:stats}=await db.from("analytics").select("*").limit(100);
   if(stats&&stats.length){
    stats.forEach(s=>{
-    totalVisitors+=Number(s.visitors||s.visitor_count||0);
     totalViews+=Number(s.views||0);
     totalLikes+=Number(s.likes||0);
    });
   }
  }catch(_){}
- document.getElementById("countVisitors").textContent=totalVisitors||totalViews;
  document.getElementById("countViews").textContent=totalViews;
  document.getElementById("countLikes").textContent=totalLikes;
  document.getElementById("countPopups").textContent=notificationData.filter(n=>n.is_active!==false).length;
 }
 async function refreshDashboard(){
  await loadAll();
- toast("Dashboard refreshed");
+ toast("Dashboard & App Users refreshed");
 }
 
 /* ANIME SEARCH (AniList + Jikan Fallback) */
@@ -1141,7 +1452,7 @@ function renderSeasons(){
   </div>`).join(""):"<p class='muted'>No seasons found.</p>";
 }
 
-/* EPISODE + STREAM & DIRECT DOWNLOAD LINKS MANAGER (NO SHORTENER) */
+/* EPISODE + STREAM & DIRECT DOWNLOAD LINKS MANAGER */
 function updateSeasonOptions(){
  const animeId=document.getElementById("episodeAnime").value;
  const rows=seasonData.filter(s=>String(s.anime_id)===String(animeId));
@@ -1175,7 +1486,6 @@ async function saveQualityLinks(episodeId){
    .limit(1);
   if(findError)throw findError;
 
-  // If both stream and download are empty during edit, delete the existing quality row
   if(!streamUrl&&!downloadUrl){
    if(existing&&existing.length){
     await db.from("video_servers").delete().eq("id",existing[0].id);
@@ -1194,7 +1504,6 @@ async function saveQualityLinks(episodeId){
 
   if(existing&&existing.length){
    let {error}=await db.from("video_servers").update(payloadWithDl).eq("id",existing[0].id);
-   // Fallback if download_url column is not yet added in Supabase
    if(error&&String(error.message).includes("download_url")){
     const {error:fallbackErr}=await db.from("video_servers").update({
      server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language
@@ -1407,7 +1716,7 @@ function renderSchedules(){
  }).join(""):"<p class='muted'>No schedules added yet.</p>";
 }
 
-/* 5. DOWNLOAD VERIFICATION SETTINGS (NO SHORTENER) */
+/* 5. DOWNLOAD VERIFICATION SETTINGS */
 async function loadVerificationSettings(){
  try{
   const {data,error}=await db.from("site_settings").select("value").eq("key","download_verification").maybeSingle();
@@ -1454,7 +1763,7 @@ async function saveVerificationSettings(){
  }
 }
 
-/* 6. POPUPS & ANNOUNCEMENTS (Homepage Popup + Stream Alert + Expiry + Preview) */
+/* 6. POPUPS & ANNOUNCEMENTS */
 function toggleNotifTargetFields(){
  const type=document.getElementById("notificationType").value;
  const wrap=document.getElementById("notifTargetWrap");
@@ -1488,7 +1797,6 @@ async function saveNotification(){
    ?await db.from("notifications").update(fullRow).eq("id",editingNotificationId)
    :await db.from("notifications").insert(fullRow);
 
-  // Graceful fallback if extended columns aren't created yet
   if(res.error&&String(res.error.message).match(/notif_type|anime_id|starts_at|expires_at/i)){
    res=editingNotificationId
     ?await db.from("notifications").update(basicRow).eq("id",editingNotificationId)
@@ -1592,11 +1900,14 @@ function renderNotifications(){
 function renderComments(){
  document.getElementById("commentList").innerHTML=commentData.length?commentData.map(c=>{
   const anime=animeData.find(a=>String(a.id)===String(c.anime_id)||String(a.anime_id)===String(c.anime_id));
+  const rawComment=c.content||c.comment_text||c.comment||"Comment";
+  const matchedUser=userProfilesData.find(u=>String(u.id)===String(c.user_id));
+  const userNameDisplay=c.user_name||matchedUser?.full_name||matchedUser?.email||c.user_id||"Guest";
   return `
   <div class="item">
    <div class="item-info">
-    <b>${safe(c.content||c.comment||"Comment")}</b>
-    <small>Anime: ${safe(anime?.title||c.anime_id||"—")} · User: ${safe(c.user_name||c.user_id||"Guest")}</small>
+    <b>${safe(rawComment)}</b>
+    <small>Anime: ${safe(anime?.title||c.anime_id||"—")} · User: ${safe(userNameDisplay)}</small>
     <p class="muted" style="margin:6px 0">Admin reply: ${safe(c.admin_reply||"No reply yet")}</p>
     <input id="reply-${safe(c.id)}" placeholder="Write admin reply" value="${safe(c.admin_reply||"")}">
     <div class="btn-group">
