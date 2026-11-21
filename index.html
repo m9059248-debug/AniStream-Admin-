@@ -88,6 +88,25 @@ small,.muted{color:var(--muted)}
 .modal-backdrop{position:fixed;inset:0;background:rgba(4,8,18,.82);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40}
 .popup-card{width:100%;max-width:440px;background:linear-gradient(160deg,#12203d,#0c1528);border:1px solid #35558a;border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.6);position:relative}
 .popup-tag{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:#1e40af;color:#dbeafe;margin-bottom:10px}
+
+/* Anime + Episode entry refresh (scoped; other admin sections stay unchanged) */
+.entry-panel{background:#090b12;border-color:#202331;border-radius:13px}
+.entry-panel h3{color:#ff315f;font-size:16px;margin-bottom:10px}
+.entry-panel label{font-size:12px;color:#aab0c2}
+.entry-panel input,.entry-panel textarea,.entry-panel select{background:#070910;border-color:#202331;border-radius:8px;padding:11px;margin:6px 0 12px}
+.entry-panel input:focus,.entry-panel textarea:focus,.entry-panel select:focus{border-color:#ff315f}
+.entry-panel .grid2,.entry-panel .grid3{grid-template-columns:1fr}
+.entry-panel .subheading{border-left-color:#ff315f}
+.entry-panel .quality-box{background:#080a12;border-color:#202331}
+.entry-panel button:not(.secondary):not(.danger){background:linear-gradient(90deg,#ff174f,#ff315f)}
+.entry-panel .secondary{background:#202638}
+.entry-panel .language-list label{background:#101421;border-color:#252a3a}
+.entry-panel .language-list input{accent-color:#ff315f}
+.entry-panel .item{border-color:#202331}
+.entry-panel .badge{background:#351522;color:#ff9bb1}
+.entry-panel .badge.green{background:#123522;color:#86efac}
+.entry-panel .badge.amber{background:#493314;color:#fde68a}
+.entry-panel .add-episode-btn{background:linear-gradient(90deg,#ff174f,#ff315f)!important}
 @media(max-width:850px){
  #adminApp{display:block}
  .sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:15;border-right:0;border-bottom:1px solid var(--border)}
@@ -216,7 +235,7 @@ small,.muted{color:var(--muted)}
 
   <!-- 2. ANIME MANAGER -->
   <section id="anime" class="section">
-   <div class="panel">
+   <div class="panel entry-panel">
     <h3>🔎 Search Anime (AniList + MyAnimeList Auto-Fill)</h3>
     <p class="muted">AniList से एनिमे सर्च करें। यदि AniList पर नहीं मिलता तो MyAnimeList अपने-आप उपयोग होगा।</p>
     <div class="row">
@@ -226,7 +245,7 @@ small,.muted{color:var(--muted)}
     <div id="searchResults"></div>
    </div>
 
-   <div class="panel">
+   <div class="panel entry-panel">
     <h3 id="animeFormTitle">➕ Add New Anime</h3>
     <p class="muted">ऊपर सर्च करके Auto-Fill करें या नीचे मैन्युअली भरें।</p>
 
@@ -307,7 +326,7 @@ small,.muted{color:var(--muted)}
     <p id="animeFormMessage" class="muted"></p>
    </div>
 
-   <div class="panel">
+   <div class="panel entry-panel">
     <h3>📚 Anime Library & Filters</h3>
     <div class="grid3">
      <div>
@@ -338,7 +357,7 @@ small,.muted{color:var(--muted)}
 
   <!-- 3. CONTENT MANAGER (SEASON + EPISODE + STREAM & DOWNLOAD LINKS) -->
   <section id="content" class="section">
-   <div class="panel">
+   <div class="panel entry-panel">
     <h3>📺 Season Manager</h3>
     <div class="grid3">
      <div>
@@ -361,7 +380,7 @@ small,.muted{color:var(--muted)}
     <div id="seasonList" style="margin-top:12px">Loading...</div>
    </div>
 
-   <div class="panel">
+   <div class="panel entry-panel">
     <h3>🎬 Episode + 480p / 720p / 1080p Stream & Download Links</h3>
     <p class="muted">यहाँ Stream Links और Direct Download Links दोनों एक साथ सेव करें (बिना किसी Shortener के)।</p>
 
@@ -1377,6 +1396,7 @@ function renderAnime(){
     <span class="badge ${a.is_published===false?"amber":"green"}">${a.is_published===false?"Draft":"Published"}</span>
    </div>
    <div class="btn-group">
+    <button class="add-episode-btn" onclick="openEpisodeForAnime('${safe(a.id)}')">➕ Add Episode</button>
     <button class="secondary" onclick="editAnime('${safe(a.id)}')">Edit</button>
     <button class="danger" onclick="deleteAnimeCascade('${safe(a.id)}')">Delete</button>
    </div>
@@ -1397,6 +1417,28 @@ async function deleteAnimeCascade(animeId){
   await loadAll();
   toast("Anime and related records deleted");
  }catch(e){toast("Delete error: "+e.message);}
+}
+
+/* Open the episode form for the anime selected from Anime Library */
+function openEpisodeForAnime(animeId){
+ const anime=animeData.find(a=>String(a.id)===String(animeId));
+ if(!anime)return;
+ const animeSelect=document.getElementById("episodeAnime");
+ animeSelect.value=String(animeId);
+ updateSeasonOptions();
+ const seasonSelect=document.getElementById("episodeSeason");
+ if(!seasonSelect.value){
+  const firstSeason=seasonData.find(x=>String(x.anime_id)===String(animeId));
+  if(firstSeason)seasonSelect.value=String(firstSeason.id);
+ }
+ resetEpisodeForm();
+ animeSelect.value=String(animeId);
+ updateSeasonOptions();
+ if(seasonSelect.options.length && seasonSelect.options[0].value)seasonSelect.value=seasonSelect.options[0].value;
+ const nav=[...document.querySelectorAll(".nav-btn")].find(b=>b.getAttribute("onclick")?.includes("showSection('content'"));
+ showSection("content",nav);
+ document.getElementById("episodeAnime").scrollIntoView({behavior:"smooth",block:"center"});
+ toast("Selected: "+anime.title+" — add episode details below");
 }
 
 /* SEASON MANAGER */
