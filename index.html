@@ -426,15 +426,16 @@ small,.muted{color:var(--muted)}
       <input id="serverName" placeholder="Server 1" value="Server 1">
      </div>
      <div>
-      <label>Audio Language</label>
-      <select id="serverLanguage">
-       <option value="Hindi">Hindi</option>
-       <option value="Japanese">Japanese</option>
-       <option value="English">English</option>
-       <option value="Tamil">Tamil</option>
-       <option value="Telugu">Telugu</option>
-       <option value="Subtitles">Subtitles</option>
-      </select>
+      <label>Audio Language (एक से ज्यादा चुन सकते हैं)</label>
+      <div class="language-list" id="episodeLanguageChoices">
+       <label><input type="checkbox" name="episodeLanguage" value="Hindi" checked> Hindi</label>
+       <label><input type="checkbox" name="episodeLanguage" value="Japanese"> Japanese</label>
+       <label><input type="checkbox" name="episodeLanguage" value="English"> English</label>
+       <label><input type="checkbox" name="episodeLanguage" value="Tamil"> Tamil</label>
+       <label><input type="checkbox" name="episodeLanguage" value="Telugu"> Telugu</label>
+       <label><input type="checkbox" name="episodeLanguage" value="Subtitles"> Subtitles</label>
+      </div>
+      <small class="muted">ऊपर जो भाषाएँ चुनोगे, नीचे भरे गए Stream/Download links उन सभी भाषाओं के लिए सेव होंगे।</small>
      </div>
     </div>
 
@@ -1521,55 +1522,40 @@ function getQualityInputs(){
 }
 async function saveQualityLinks(episodeId){
  const server_name=document.getElementById("serverName").value.trim()||"Server 1";
- const language=document.getElementById("serverLanguage").value;
+ const languages=[...document.querySelectorAll('input[name="episodeLanguage"]:checked')].map(x=>x.value);
+ if(!languages.length)throw new Error("कम से कम एक Audio Language चुनें");
 
- for(const item of getQualityInputs()){
-  const streamUrl=document.getElementById(item.streamId).value.trim();
-  const downloadUrl=document.getElementById(item.dlId).value.trim();
+ for(const language of languages){
+  for(const item of getQualityInputs()){
+   const streamUrl=document.getElementById(item.streamId).value.trim();
+   const downloadUrl=document.getElementById(item.dlId).value.trim();
 
-  const {data:existing,error:findError}=await db.from("video_servers")
-   .select("id")
-   .eq("episode_id",episodeId)
-   .eq("quality",item.quality)
-   .eq("language",language)
-   .limit(1);
-  if(findError)throw findError;
+   const {data:existing,error:findError}=await db.from("video_servers")
+    .select("id")
+    .eq("episode_id",episodeId)
+    .eq("quality",item.quality)
+    .eq("language",language)
+    .limit(1);
+   if(findError)throw findError;
 
-  if(!streamUrl&&!downloadUrl){
+   if(!streamUrl&&!downloadUrl){
+    if(existing&&existing.length)await db.from("video_servers").delete().eq("id",existing[0].id);
+    continue;
+   }
+
+   const payloadWithDl={episode_id:episodeId,server_name,video_url:streamUrl||downloadUrl,download_url:downloadUrl||null,quality:item.quality,language};
    if(existing&&existing.length){
-    await db.from("video_servers").delete().eq("id",existing[0].id);
-   }
-   continue;
-  }
-
-  const payloadWithDl={
-   episode_id:episodeId,
-   server_name,
-   video_url:streamUrl||downloadUrl,
-   download_url:downloadUrl||null,
-   quality:item.quality,
-   language
-  };
-
-  if(existing&&existing.length){
-   let {error}=await db.from("video_servers").update(payloadWithDl).eq("id",existing[0].id);
-   if(error&&String(error.message).includes("download_url")){
-    const {error:fallbackErr}=await db.from("video_servers").update({
-     server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language
-    }).eq("id",existing[0].id);
-    if(fallbackErr)throw fallbackErr;
-   }else if(error){
-    throw error;
-   }
-  }else{
-   let {error}=await db.from("video_servers").insert(payloadWithDl);
-   if(error&&String(error.message).includes("download_url")){
-    const {error:fallbackErr}=await db.from("video_servers").insert({
-     episode_id:episodeId,server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language
-    });
-    if(fallbackErr)throw fallbackErr;
-   }else if(error){
-    throw error;
+    let {error}=await db.from("video_servers").update(payloadWithDl).eq("id",existing[0].id);
+    if(error&&String(error.message).includes("download_url")){
+     const {error:fallbackErr}=await db.from("video_servers").update({server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language}).eq("id",existing[0].id);
+     if(fallbackErr)throw fallbackErr;
+    }else if(error)throw error;
+   }else{
+    let {error}=await db.from("video_servers").insert(payloadWithDl);
+    if(error&&String(error.message).includes("download_url")){
+     const {error:fallbackErr}=await db.from("video_servers").insert({episode_id:episodeId,server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language});
+     if(fallbackErr)throw fallbackErr;
+    }else if(error)throw error;
    }
   }
  }
@@ -1628,7 +1614,7 @@ async function editEpisode(id){
  if(links.length){
   const first=links[0];
   document.getElementById("serverName").value=first.server_name||"Server 1";
-  document.getElementById("serverLanguage").value=first.language||"Hindi";
+  document.querySelectorAll('input[name="episodeLanguage"]').forEach(x=>x.checked=x.value===(first.language||"Hindi"));
   links.forEach(s=>{
    const field=getQualityInputs().find(q=>q.quality===s.quality);
    if(field){
@@ -1649,7 +1635,7 @@ function resetEpisodeForm(){
  document.getElementById("episodeDescription").value="";
  document.getElementById("episodePublished").value="true";
  document.getElementById("serverName").value="Server 1";
- document.getElementById("serverLanguage").value="Hindi";
+ document.querySelectorAll('input[name="episodeLanguage"]').forEach(x=>x.checked=x.value==="Hindi");
  ["url480","url720","url1080","dl480","dl720","dl1080"].forEach(id=>document.getElementById(id).value="");
  document.getElementById("saveEpisodeBtn").textContent="➕ Save Episode + Stream & Download Links";
  document.getElementById("cancelEpisodeEditBtn").classList.add("hidden");
@@ -1663,6 +1649,7 @@ function renderEpisodeManagement(){
   const anime=animeData.find(a=>String(a.id)===String(e.anime_id));
   const season=seasonData.find(s=>String(s.id)===String(e.season_id));
   const links=serverData.filter(s=>String(s.episode_id)===String(e.id));
+  const languages=[...new Set(links.map(s=>s.language).filter(Boolean))].join(", ")||"None";
   const streamQualities=[...new Set(links.filter(s=>s.video_url).map(s=>s.quality))].join(", ")||"None";
   const dlQualities=[...new Set(links.filter(s=>s.download_url).map(s=>s.quality))].join(", ")||"Same as stream / None";
   return `
@@ -1670,6 +1657,7 @@ function renderEpisodeManagement(){
    <div class="item-info">
     <b>Ep ${safe(e.episode_number)}: ${safe(e.title)}</b>
     <small>${safe(anime?.title||"Anime")} · ${safe(season?.title||"Season")}</small>
+    <small>🎧 Languages: ${safe(languages)}</small>
     <small>▶️ Stream: ${safe(streamQualities)} | ⬇️ Download: ${safe(dlQualities)}</small>
     <span class="badge ${e.is_published===false?"amber":"green"}">${e.is_published===false?"Draft":"Published"}</span>
    </div>
