@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#080d1b">
 <title>AniStream Hindi – Admin Panel</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#080d1b;--panel:#101a30;--panel2:#14213b;--border:#243654;--blue:#287bff;--text:#edf3ff;--muted:#91a3c2;--red:#ef4444;--green:#22c55e;--amber:#f59e0b}
-*{box-sizing:border-box}
+*{box-sizing:border-box;touch-action:manipulation}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Arial,sans-serif}
 button,input,textarea,select{font:inherit}
 button{border:0;border-radius:9px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer;transition:filter .15s}
 button:hover{filter:brightness(1.12)}
 button:disabled{opacity:.5;cursor:not-allowed}
-input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;border:1px solid var(--border);border-radius:9px;background:#091326;color:white;outline:none}
+input,textarea,select{width:100%;font-size:16px;padding:12px;margin:7px 0 13px;border:1px solid var(--border);border-radius:9px;background:#091326;color:white;outline:none}
 input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 textarea{min-height:90px;resize:vertical}
 label{font-size:13px;color:#b7c7e2;display:block}
@@ -1520,9 +1521,9 @@ function getQualityInputs(){
   {quality:"1080p",streamId:"url1080",dlId:"dl1080"}
  ];
 }
-async function saveQualityLinks(episodeId){
+async function saveQualityLinks(episodeId, selectedLanguages=null){
  const server_name=document.getElementById("serverName").value.trim()||"Server 1";
- const languages=[...document.querySelectorAll('input[name="episodeLanguage"]:checked')].map(x=>x.value);
+ const languages=selectedLanguages||[...document.querySelectorAll('input[name="episodeLanguage"]:checked')].map(x=>x.value);
  if(!languages.length)throw new Error("कम से कम एक Audio Language चुनें");
 
  for(const language of languages){
@@ -1566,31 +1567,67 @@ async function saveEpisode(){
  const season_id=document.getElementById("episodeSeason").value;
  const episode_number=Number(document.getElementById("episodeNumber").value);
  const title=document.getElementById("episodeTitle").value.trim();
+ const languages=[...document.querySelectorAll('input[name="episodeLanguage"]:checked')].map(x=>x.value);
  if(!anime_id||!season_id||!episode_number||!title){
   toast("Fill anime, season, episode number and title");return;
  }
- const row={
+ if(!languages.length){toast("कम से कम एक Audio Language चुनें");return;}
+ const baseRow={
   anime_id,season_id,episode_number,title,
   description:document.getElementById("episodeDescription").value.trim(),
   is_published:document.getElementById("episodePublished").value==="true"
  };
  const btn=document.getElementById("saveEpisodeBtn");
- btn.disabled=true;setMessage("episodeFormMessage","Saving episode, stream and download links...");
+ btn.disabled=true;
+ setMessage("episodeFormMessage","Saving selected languages separately...");
  try{
-  const wasEditing=!!editingEpisodeId;
-  let episodeId=editingEpisodeId;
-  if(editingEpisodeId){
-   const {error}=await db.from("episodes").update(row).eq("id",editingEpisodeId);
-   if(error)throw error;
-  }else{
-   const {data,error}=await db.from("episodes").insert(row).select("id").single();
-   if(error)throw error;
-   episodeId=data.id;
+  let savedCount=0;
+  for(const language of languages){
+   // episodes table has a unique anime/episode/language key. Reuse that language row
+   // when it already exists instead of inserting a duplicate episode.
+   let existingEpisode=null;
+   if(editingEpisodeId){
+    const editingRow=episodeData.find(e=>String(e.id)===String(editingEpisodeId));
+    if(editingRow && String(editingRow.language||"").toLowerCase()===language.toLowerCase()){
+     existingEpisode=editingRow;
+    }
+   }
+   if(!existingEpisode){
+    const {data:matches,error:lookupError}=await db.from("episodes")
+     .select("id,language")
+     .eq("anime_id",anime_id)
+     .eq("episode_number",episode_number)
+     .eq("language",language)
+     .limit(1);
+    if(lookupError)throw lookupError;
+    existingEpisode=matches&&matches.length?matches[0]:null;
+   }
+   const row={...baseRow,language};
+   let episodeId;
+   if(existingEpisode){
+    const {error}=await db.from("episodes").update(row).eq("id",existingEpisode.id);
+    if(error)throw error;
+    episodeId=existingEpisode.id;
+   }else{
+    const {data,error}=await db.from("episodes").insert(row).select("id").single();
+    if(error){
+     // Recover safely from a simultaneous/previous insert of the same language row.
+     if(String(error.code)==="23505" || String(error.message||"").includes("episodes_anime_ep_lang_key")){
+      const {data:again,error:againError}=await db.from("episodes").select("id").eq("anime_id",anime_id).eq("episode_number",episode_number).eq("language",language).limit(1);
+      if(againError)throw againError;
+      if(!again||!again.length)throw error;
+      episodeId=again[0].id;
+      const {error:updateError}=await db.from("episodes").update(row).eq("id",episodeId);
+      if(updateError)throw updateError;
+     }else throw error;
+    }else episodeId=data.id;
+   }
+   await saveQualityLinks(episodeId,[language]);
+   savedCount++;
   }
-  await saveQualityLinks(episodeId);
   resetEpisodeForm();
   await loadAll();
-  toast(wasEditing?"Episode & links updated":"Episode & links saved");
+  toast(`Episode saved/updated for ${savedCount} language(s): ${languages.join(", ")}`);
  }catch(e){
   console.error(e);
   setMessage("episodeFormMessage","Save error: "+e.message);
@@ -1614,7 +1651,7 @@ async function editEpisode(id){
  if(links.length){
   const first=links[0];
   document.getElementById("serverName").value=first.server_name||"Server 1";
-  document.querySelectorAll('input[name="episodeLanguage"]').forEach(x=>x.checked=x.value===(first.language||"Hindi"));
+  document.querySelectorAll('input[name="episodeLanguage"]').forEach(x=>x.checked=x.value===(e.language||first.language||"Hindi"));
   links.forEach(s=>{
    const field=getQualityInputs().find(q=>q.quality===s.quality);
    if(field){
