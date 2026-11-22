@@ -75,6 +75,12 @@ small,.muted{color:var(--muted)}
 .divider{height:1px;background:var(--border);margin:18px 0}
 .rule-box{background:#0b1528;border:1px solid #28426b;border-radius:10px;padding:13px;margin-bottom:14px;font-size:13px;line-height:1.5}
 .code-box{background:#060b16;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:monospace;font-size:12px;color:#a5f3fc;overflow-x:auto;white-space:pre}
+/* Multi-Language Episode Tabs */
+.lang-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.lang-tab{background:#101421!important;border:1px solid #283048!important;color:#c5d1eb;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px}
+.lang-tab.active{background:linear-gradient(90deg,#ff174f,#ff315f)!important;border-color:#ff4b73!important;color:#fff}
+.lang-tab .lang-dot{display:inline-block;padding:2px 6px;border-radius:99px;font-size:10px;background:#123522;color:#86efac}
+.lang-active-bar{background:#0d1220;border:1px solid #252c42;border-radius:10px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 /* App Users Cards & Avatar Styles */
 .user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
 .user-card{background:#0b1528;border:1px solid var(--border);border-radius:12px;padding:15px;display:flex;gap:13px;align-items:flex-start}
@@ -89,7 +95,7 @@ small,.muted{color:var(--muted)}
 .popup-card{width:100%;max-width:440px;background:linear-gradient(160deg,#12203d,#0c1528);border:1px solid #35558a;border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.6);position:relative}
 .popup-tag{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:#1e40af;color:#dbeafe;margin-bottom:10px}
 
-/* Anime + Episode entry refresh (scoped; other admin sections stay unchanged) */
+/* Anime + Episode entry refresh */
 .entry-panel{background:#090b12;border-color:#202331;border-radius:13px}
 .entry-panel h3{color:#ff315f;font-size:16px;margin-bottom:10px}
 .entry-panel label{font-size:12px;color:#aab0c2}
@@ -202,7 +208,7 @@ small,.muted{color:var(--muted)}
     <div class="rule-box">
      • <b>Public Header Protection:</b> Public Website Header में Admin Button नहीं दिखना चाहिए (केवल गुप्त एडमिन URL से लॉगिन करें)।<br>
      • <b>Popup Routing Rule:</b> Homepage Popup केवल Homepage (<code>/</code>) पर दिखेगा; Anime Details और Watch Page पर ब्लॉक रहेगा।<br>
-     • <b>Download Links Mode:</b> Direct 480p / 720p / 1080p Links एक्टिव हैं (कोई Shortener नहीं लगा है)।
+     • <b>Multi-Language Mode:</b> एक ही Anime और Episode में Hindi, Japanese, English, Tamil, Telugu और Subtitles सभी भाषाओं के लिंक एक साथ जोड़े जा सकते हैं।
     </div>
    </div>
   </section>
@@ -292,13 +298,19 @@ small,.muted{color:var(--muted)}
      </div>
     </div>
 
-    <label>Available Languages</label>
+    <div class="row" style="justify-content:space-between;margin-top:4px">
+     <label style="margin:0">Available Audio / Sub Languages (जितनी भाषाएं चाहें टिक करें)</label>
+     <div style="flex:0 0 auto">
+      <button type="button" class="secondary" style="padding:5px 10px;font-size:11px" onclick="toggleAllAnimeLanguages()">☑️ Select All Languages</button>
+     </div>
+    </div>
     <div class="language-list">
-     <label><input type="checkbox" name="animeLanguage" value="Hindi"> Hindi</label>
-     <label><input type="checkbox" name="animeLanguage" value="English"> English</label>
+     <label><input type="checkbox" name="animeLanguage" value="Hindi" checked> Hindi</label>
      <label><input type="checkbox" name="animeLanguage" value="Japanese"> Japanese</label>
+     <label><input type="checkbox" name="animeLanguage" value="English"> English</label>
      <label><input type="checkbox" name="animeLanguage" value="Tamil"> Tamil</label>
      <label><input type="checkbox" name="animeLanguage" value="Telugu"> Telugu</label>
+     <label><input type="checkbox" name="animeLanguage" value="Subtitles"> Subtitles</label>
     </div>
 
     <div class="grid2">
@@ -355,7 +367,7 @@ small,.muted{color:var(--muted)}
    </div>
   </section>
 
-  <!-- 3. CONTENT MANAGER (SEASON + EPISODE + STREAM & DOWNLOAD LINKS) -->
+  <!-- 3. CONTENT MANAGER (SEASON + MULTI-LANGUAGE EPISODE + STREAM & DOWNLOAD LINKS) -->
   <section id="content" class="section">
    <div class="panel entry-panel">
     <h3>📺 Season Manager</h3>
@@ -381,24 +393,24 @@ small,.muted{color:var(--muted)}
    </div>
 
    <div class="panel entry-panel">
-    <h3>🎬 Episode + 480p / 720p / 1080p Stream & Download Links</h3>
-    <p class="muted">यहाँ Stream Links और Direct Download Links दोनों एक साथ सेव करें (बिना किसी Shortener के)।</p>
+    <h3>🎬 Multi-Language Episode + 480p / 720p / 1080p Stream & Download Links</h3>
+    <p class="muted">एक ही एपिसोड में <b>Hindi, Japanese, English, Tamil, Telugu</b> सभी भाषाओं के लिंक एक साथ या अलग-अलग जोड़ें। नीचे भाषा टैब (Language Tab) बदलकर हर भाषा के लिंक भर सकते हैं।</p>
 
     <div class="grid2">
      <div>
       <label>Select Anime</label>
-      <select id="episodeAnime" onchange="updateSeasonOptions()"></select>
+      <select id="episodeAnime" onchange="updateSeasonOptions();checkExistingEpisodeAutoLoad()"></select>
      </div>
      <div>
       <label>Select Season</label>
-      <select id="episodeSeason"></select>
+      <select id="episodeSeason" onchange="checkExistingEpisodeAutoLoad()"></select>
      </div>
     </div>
 
     <div class="grid3">
      <div>
       <label>Episode Number</label>
-      <input id="episodeNumber" type="number" min="1" value="1">
+      <input id="episodeNumber" type="number" min="1" value="1" oninput="checkExistingEpisodeAutoLoad()">
      </div>
      <div>
       <label>Episode Title</label>
@@ -417,15 +429,29 @@ small,.muted{color:var(--muted)}
     <textarea id="episodeDescription" placeholder="Episode description"></textarea>
 
     <div class="divider"></div>
-    <h4 class="subheading">🌐 Video Server & Audio Settings</h4>
+    <h4 class="subheading">🌐 Select Audio Language Tab (एक या सभी भाषाओं में लिंक जोड़ें)</h4>
+    <p class="form-note">जिस भाषा का लिंक डालना है उस टैब पर क्लिक करें। आप एक टैब में लिंक भरने के बाद दूसरे भाषा टैब पर क्लिक करके दूसरी भाषा के लिंक भी भर सकते हैं — सेव बटन दबाने पर सभी भाषाएं एक साथ सेव हो जाएंगी!</p>
+
+    <div id="langTabsContainer" class="lang-tabs"></div>
+
+    <div class="lang-active-bar">
+     <div>
+      <b id="activeLangHeading" style="color:#fff;font-size:14px">🎧 Editing Audio Language: Hindi</b>
+      <small id="activeLangStatus" style="display:block">इस भाषा के लिए नीचे Stream और Download URLs भरें</small>
+     </div>
+     <div style="flex:0 0 auto">
+      <button type="button" class="secondary" style="padding:7px 11px;font-size:12px" onclick="clearCurrentLanguageLinks()">🗑 Clear Current Language Links</button>
+     </div>
+    </div>
+
     <div class="grid2">
      <div>
-      <label>Server Name</label>
-      <input id="serverName" placeholder="Server 1" value="Server 1">
+      <label>Server Name (For Selected Language)</label>
+      <input id="serverName" placeholder="Server 1" value="Server 1" oninput="syncCurrentLangDraft()">
      </div>
      <div>
-      <label>Audio Language</label>
-      <select id="serverLanguage">
+      <label>Current Selected Audio Language</label>
+      <select id="serverLanguage" onchange="switchLanguageTab(this.value)">
        <option value="Hindi">Hindi</option>
        <option value="Japanese">Japanese</option>
        <option value="English">English</option>
@@ -436,48 +462,48 @@ small,.muted{color:var(--muted)}
      </div>
     </div>
 
-    <h4 class="subheading">▶️ Stream Links (480p / 720p / 1080p)</h4>
+    <h4 class="subheading">▶️ Stream Links (<span id="streamLangLabel">Hindi</span> — 480p / 720p / 1080p)</h4>
     <div class="grid3">
      <div class="quality-box">
       <label>480p Stream URL</label>
-      <input id="url480" type="url" placeholder="https://... (480p stream)">
+      <input id="url480" type="url" placeholder="https://... (480p stream)" oninput="syncCurrentLangDraft()">
      </div>
      <div class="quality-box">
       <label>720p Stream URL</label>
-      <input id="url720" type="url" placeholder="https://... (720p stream)">
+      <input id="url720" type="url" placeholder="https://... (720p stream)" oninput="syncCurrentLangDraft()">
      </div>
      <div class="quality-box">
       <label>1080p Stream URL</label>
-      <input id="url1080" type="url" placeholder="https://... (1080p stream)">
+      <input id="url1080" type="url" placeholder="https://... (1080p stream)" oninput="syncCurrentLangDraft()">
      </div>
     </div>
 
-    <h4 class="subheading">⬇️ Direct Download Links (480p / 720p / 1080p — No Shortener)</h4>
+    <h4 class="subheading">⬇️ Direct Download Links (<span id="dlLangLabel">Hindi</span> — 480p / 720p / 1080p)</h4>
     <div class="grid3">
      <div class="quality-box">
       <label>480p Download URL</label>
-      <input id="dl480" type="url" placeholder="https://... (480p direct download)">
+      <input id="dl480" type="url" placeholder="https://... (480p direct download)" oninput="syncCurrentLangDraft()">
      </div>
      <div class="quality-box">
       <label>720p Download URL</label>
-      <input id="dl720" type="url" placeholder="https://... (720p direct download)">
+      <input id="dl720" type="url" placeholder="https://... (720p direct download)" oninput="syncCurrentLangDraft()">
      </div>
      <div class="quality-box">
       <label>1080p Download URL</label>
-      <input id="dl1080" type="url" placeholder="https://... (1080p direct download)">
+      <input id="dl1080" type="url" placeholder="https://... (1080p direct download)" oninput="syncCurrentLangDraft()">
      </div>
     </div>
-    <p class="form-note">जो क्वालिटी उपलब्ध हो वही भरें। Edit करते समय किसी लिंक को हटाने के लिए उसे खाली छोड़ कर सेव करें।</p>
+    <p class="form-note">💡 <b>Tip:</b> अगर आपने Hindi के लिंक भर दिए हैं और इसी एपिसोड में Japanese या English भी डालना चाहते हैं, तो ऊपर <b>Japanese</b> या <b>English</b> टैब पर क्लिक करें, उसके लिंक भरें, और नीचे Save बटन दबाएं।</p>
 
     <div class="row">
-     <button id="saveEpisodeBtn" onclick="saveEpisode()">➕ Save Episode + Stream & Download Links</button>
+     <button id="saveEpisodeBtn" onclick="saveEpisode()">➕ Save Episode + All Language Links</button>
      <button id="cancelEpisodeEditBtn" class="secondary hidden" onclick="resetEpisodeForm()">Cancel Edit</button>
     </div>
     <p id="episodeFormMessage" class="muted"></p>
    </div>
 
    <div class="panel">
-    <h3>📚 Episode Management</h3>
+    <h3>📚 Episode Management (Multi-Language Tracks)</h3>
     <div class="row">
      <div>
       <label>Filter by Anime</label>
@@ -681,10 +707,20 @@ small,.muted{color:var(--muted)}
   <!-- 8. SQL & RLS HELPER -->
   <section id="sqlsetup" class="section">
    <div class="panel">
-    <h3>🛠 Supabase SQL Schema & App Users Sync Helper</h3>
-    <p class="muted">ऐप में लॉगिन करने वाले सभी यूज़र्स की डिटेल्स (Name, Email, Profile Photo, Last Login, My List) को Admin Panel में ऑटोमैटिक दिखाने और सभी नए फीचर्स चालू करने के लिए नीचे वाला SQL कॉपी करके Supabase SQL Editor में एक बार Run करें:</p>
-    <button class="secondary" style="margin-bottom:10px" onclick="copySqlSchema()">📋 Copy Full SQL Migration (With App Users Sync)</button>
-    <div id="sqlCodeBlock" class="code-box">-- 1. Create App Users Profile Table & Auto-Sync Trigger from Supabase Auth
+    <h3>🛠 Supabase SQL Schema & Multi-Language Helper</h3>
+    <p class="muted">Multi-Language Video Servers, App Users Sync और सभी फीचर्स को बिना किसी Constraint Error के चलाने के लिए नीचे वाला SQL कॉपी करके Supabase SQL Editor में Run करें:</p>
+    <button class="secondary" style="margin-bottom:10px" onclick="copySqlSchema()">📋 Copy Full SQL Migration (With Multi-Language & Users Sync)</button>
+    <div id="sqlCodeBlock" class="code-box">-- 1. Enable Multi-Language in episodes & video_servers (Remove single-language restrictions)
+ALTER TABLE public.anime ALTER COLUMN language TYPE text;
+ALTER TABLE public.video_servers ADD COLUMN IF NOT EXISTS language text DEFAULT 'Hindi';
+ALTER TABLE public.video_servers ADD COLUMN IF NOT EXISTS download_url text;
+
+ALTER TABLE public.video_servers DROP CONSTRAINT IF EXISTS video_servers_episode_id_quality_key;
+ALTER TABLE public.video_servers DROP CONSTRAINT IF EXISTS video_servers_episode_id_server_name_quality_key;
+ALTER TABLE public.episodes DROP CONSTRAINT IF EXISTS episodes_anime_id_episode_number_key;
+ALTER TABLE public.episodes DROP CONSTRAINT IF EXISTS episodes_season_id_episode_number_key;
+
+-- 2. Create App Users Profile Table & Auto-Sync Trigger from Supabase Auth
 CREATE TABLE IF NOT EXISTS public.user_profiles (
   id uuid PRIMARY KEY,
   email text,
@@ -740,48 +776,20 @@ CREATE TRIGGER trg_sync_auth_user_to_profile
 AFTER INSERT OR UPDATE ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.sync_auth_user_to_profile();
 
-INSERT INTO public.user_profiles (
-  id, email, full_name, avatar_url, my_list_count, created_at, last_sign_in_at, updated_at
-)
-SELECT
-  u.id,
-  u.email,
-  COALESCE(
-    NULLIF(TRIM(u.raw_user_meta_data->>'full_name'), ''),
-    NULLIF(TRIM(u.raw_user_meta_data->>'name'), ''),
-    split_part(COALESCE(u.email, 'User'), '@', 1)
-  ),
-  COALESCE(u.raw_user_meta_data->>'avatar_url', ''),
-  CASE WHEN jsonb_typeof(u.raw_user_meta_data->'my_list') = 'array' THEN jsonb_array_length(u.raw_user_meta_data->'my_list') ELSE 0 END,
-  u.created_at,
-  u.last_sign_in_at,
-  now()
-FROM auth.users u
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email,
-  full_name = EXCLUDED.full_name,
-  avatar_url = EXCLUDED.avatar_url,
-  my_list_count = EXCLUDED.my_list_count,
-  last_sign_in_at = EXCLUDED.last_sign_in_at,
-  updated_at = now();
-
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON TABLE public.user_profiles TO anon, authenticated, service_role;
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow read access to user_profiles" ON public.user_profiles;
 CREATE POLICY "Allow read access to user_profiles" ON public.user_profiles FOR SELECT TO public, anon, authenticated USING (true);
 
--- 2. Add Direct Download URL column to video_servers
-ALTER TABLE public.video_servers ADD COLUMN IF NOT EXISTS download_url text;
-
--- 3. Add Popup & Announcement targeting/expiry columns to notifications
+-- 3. Popup & Announcement targeting/expiry columns
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS notif_type text DEFAULT 'homepage_popup';
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS anime_id uuid;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS episode_id uuid;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS starts_at timestamptz;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS expires_at timestamptz;
 
--- 4. Create Anime Schedules table
+-- 4. Anime Schedules table
 CREATE TABLE IF NOT EXISTS public.schedules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   anime_id uuid REFERENCES public.anime(id) ON DELETE CASCADE,
@@ -792,14 +800,14 @@ CREATE TABLE IF NOT EXISTS public.schedules (
   created_at timestamptz DEFAULT now()
 );
 
--- 5. Create Site Settings table for Download Verification & 24h Unlock
+-- 5. Site Settings table for Download Verification & 24h Unlock
 CREATE TABLE IF NOT EXISTS public.site_settings (
   key text PRIMARY KEY,
   value jsonb NOT NULL,
   updated_at timestamptz DEFAULT now()
 );
 
--- 6. Create 24-Hour Verified Download Tokens table
+-- 6. 24-Hour Verified Download Tokens table
 CREATE TABLE IF NOT EXISTS public.download_tokens (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_identifier text NOT NULL,
@@ -836,6 +844,10 @@ const SUPABASE_URL="https://cyftkgouolxcverswvpv.supabase.co";
 const SUPABASE_KEY="sb_publishable_h-Alm01lWCWvvlWcW-Uqyg_iAub4QH3";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+const SUPPORTED_LANGUAGES=["Hindi","Japanese","English","Tamil","Telugu","Subtitles"];
+let activeEpisodeLang="Hindi";
+let multiLangDraft={};
+
 let currentUser=null;
 let animeData=[],seasonData=[],episodeData=[],serverData=[],commentData=[],notificationData=[],scheduleData=[],userProfilesData=[],myListData=[];
 let userProfilesTableReady=true;
@@ -845,6 +857,15 @@ let editingEpisodeId=null;
 let editingScheduleId=null;
 let editingNotificationId=null;
 window.animeSearchResults=[];
+
+function createEmptyLangDraft(){
+ const obj={};
+ SUPPORTED_LANGUAGES.forEach(lang=>{
+  obj[lang]={serverName:"Server 1",url480:"",url720:"",url1080:"",dl480:"",dl720:"",dl1080:""};
+ });
+ return obj;
+}
+multiLangDraft=createEmptyLangDraft();
 
 function toast(message){
  const el=document.getElementById("toast");
@@ -903,6 +924,7 @@ async function showAdmin(){
  document.getElementById("loginScreen").classList.add("hidden");
  document.getElementById("adminApp").classList.remove("hidden");
  document.getElementById("adminEmailDisplay").textContent=currentUser.email;
+ renderLanguageTabs();
  await loadAll();
 }
 async function logoutAdmin(){
@@ -918,7 +940,7 @@ function showSection(id,button){
   dashboard:"Dashboard & Analytics",
   users:"Logged-In App Users Directory",
   anime:"Anime Manager",
-  content:"Episodes, Stream & Download Links",
+  content:"Multi-Language Episodes, Stream & Download Links",
   schedule:"Anime Schedule Manager",
   verification:"Download Verification (24h Unlock)",
   notifications:"Popups & Announcements",
@@ -1002,7 +1024,6 @@ function getMergedAppUsers(){
   });
  });
 
- // Enrich with my_list table rows
  myListData.forEach(item=>{
   const uid=String(item.user_id||"");
   if(!uid)return;
@@ -1026,7 +1047,6 @@ function getMergedAppUsers(){
   }
  });
 
- // Enrich with comments activity & extract embedded [Name]
  commentData.forEach(c=>{
   const uid=String(c.user_id||"");
   if(!uid)return;
@@ -1055,7 +1075,6 @@ function getMergedAppUsers(){
   entry.comment_count+=1;
  });
 
- // Sync final My List counts
  map.forEach(entry=>{
   if(entry.saved_anime_titles.length>entry.my_list_count){
    entry.my_list_count=entry.saved_anime_titles.length;
@@ -1286,6 +1305,11 @@ function selectSearchResult(index){
 }
 
 /* ANIME SAVE / EDIT / DELETE / FILTER */
+function toggleAllAnimeLanguages(){
+ const boxes=[...document.querySelectorAll('input[name="animeLanguage"]')];
+ const allChecked=boxes.every(x=>x.checked);
+ boxes.forEach(x=>x.checked=!allChecked);
+}
 function selectedLanguages(){
  return [...document.querySelectorAll('input[name="animeLanguage"]:checked')].map(x=>x.value);
 }
@@ -1348,7 +1372,7 @@ function resetAnimeForm(){
  document.getElementById("aType").value="Series";
  document.getElementById("aStatus").value="ongoing";
  document.getElementById("aPublished").value="true";
- document.querySelectorAll('input[name="animeLanguage"]').forEach(x=>x.checked=false);
+ document.querySelectorAll('input[name="animeLanguage"]').forEach(x=>x.checked=(x.value==="Hindi"));
  document.getElementById("posterPreview").style.display="none";
  document.getElementById("animeFormTitle").textContent="➕ Add New Anime";
  document.getElementById("saveAnimeBtn").textContent="➕ Add Anime to Database";
@@ -1391,7 +1415,7 @@ function renderAnime(){
    <img class="library-poster" src="${safe(a.poster_url||"")}" onerror="this.style.display='none'" alt="">
    <div class="item-info">
     <b>${safe(a.title)}</b>
-    <small>${safe(a.anime_type||"Series")} · ${safe(a.status||"ongoing")} · ${safe(a.language||"")}</small>
+    <small>${safe(a.anime_type||"Series")} · ${safe(a.status||"ongoing")} · 🎧 ${safe(a.language||"Hindi")}</small>
     <small>Slug ID: ${safe(a.anime_id||"—")}</small>
     <span class="badge ${a.is_published===false?"amber":"green"}">${a.is_published===false?"Draft":"Published"}</span>
    </div>
@@ -1419,26 +1443,22 @@ async function deleteAnimeCascade(animeId){
  }catch(e){toast("Delete error: "+e.message);}
 }
 
-/* Open the episode form for the anime selected from Anime Library */
 function openEpisodeForAnime(animeId){
  const anime=animeData.find(a=>String(a.id)===String(animeId));
  if(!anime)return;
+ resetEpisodeForm();
  const animeSelect=document.getElementById("episodeAnime");
  animeSelect.value=String(animeId);
  updateSeasonOptions();
  const seasonSelect=document.getElementById("episodeSeason");
- if(!seasonSelect.value){
-  const firstSeason=seasonData.find(x=>String(x.anime_id)===String(animeId));
-  if(firstSeason)seasonSelect.value=String(firstSeason.id);
+ if(seasonSelect.options.length&&seasonSelect.options[0].value){
+  seasonSelect.value=seasonSelect.options[0].value;
  }
- resetEpisodeForm();
- animeSelect.value=String(animeId);
- updateSeasonOptions();
- if(seasonSelect.options.length && seasonSelect.options[0].value)seasonSelect.value=seasonSelect.options[0].value;
+ checkExistingEpisodeAutoLoad();
  const nav=[...document.querySelectorAll(".nav-btn")].find(b=>b.getAttribute("onclick")?.includes("showSection('content'"));
  showSection("content",nav);
  document.getElementById("episodeAnime").scrollIntoView({behavior:"smooth",block:"center"});
- toast("Selected: "+anime.title+" — add episode details below");
+ toast("Selected: "+anime.title+" — add multi-language episode links below");
 }
 
 /* SEASON MANAGER */
@@ -1494,7 +1514,137 @@ function renderSeasons(){
   </div>`).join(""):"<p class='muted'>No seasons found.</p>";
 }
 
-/* EPISODE + STREAM & DIRECT DOWNLOAD LINKS MANAGER */
+/* MULTI-LANGUAGE EPISODE + STREAM & DIRECT DOWNLOAD LINKS MANAGER */
+function countLangFilledLinks(lang){
+ const d=multiLangDraft[lang];
+ if(!d)return 0;
+ let count=0;
+ ["url480","url720","url1080","dl480","dl720","dl1080"].forEach(k=>{
+  if((d[k]||"").trim())count++;
+ });
+ return count;
+}
+
+function syncCurrentLangDraft(){
+ if(!multiLangDraft[activeEpisodeLang]){
+  multiLangDraft[activeEpisodeLang]={serverName:"Server 1",url480:"",url720:"",url1080:"",dl480:"",dl720:"",dl1080:""};
+ }
+ multiLangDraft[activeEpisodeLang]={
+  serverName:document.getElementById("serverName").value.trim()||"Server 1",
+  url480:document.getElementById("url480").value.trim(),
+  url720:document.getElementById("url720").value.trim(),
+  url1080:document.getElementById("url1080").value.trim(),
+  dl480:document.getElementById("dl480").value.trim(),
+  dl720:document.getElementById("dl720").value.trim(),
+  dl1080:document.getElementById("dl1080").value.trim()
+ };
+ renderLanguageTabs();
+}
+
+function loadLangDraftIntoInputs(lang){
+ activeEpisodeLang=lang;
+ const d=multiLangDraft[lang]||{serverName:"Server 1",url480:"",url720:"",url1080:"",dl480:"",dl720:"",dl1080:""};
+ document.getElementById("serverLanguage").value=lang;
+ document.getElementById("serverName").value=d.serverName||"Server 1";
+ document.getElementById("url480").value=d.url480||"";
+ document.getElementById("url720").value=d.url720||"";
+ document.getElementById("url1080").value=d.url1080||"";
+ document.getElementById("dl480").value=d.dl480||"";
+ document.getElementById("dl720").value=d.dl720||"";
+ document.getElementById("dl1080").value=d.dl1080||"";
+
+ document.getElementById("activeLangHeading").textContent=`🎧 Editing Audio Language: ${lang}`;
+ document.getElementById("streamLangLabel").textContent=lang;
+ document.getElementById("dlLangLabel").textContent=lang;
+ renderLanguageTabs();
+}
+
+function switchLanguageTab(newLang){
+ syncCurrentLangDraft();
+ loadLangDraftIntoInputs(newLang);
+}
+
+function clearCurrentLanguageLinks(){
+ multiLangDraft[activeEpisodeLang]={serverName:"Server 1",url480:"",url720:"",url1080:"",dl480:"",dl720:"",dl1080:""};
+ loadLangDraftIntoInputs(activeEpisodeLang);
+ toast(`${activeEpisodeLang} links cleared from form`);
+}
+
+function renderLanguageTabs(){
+ const container=document.getElementById("langTabsContainer");
+ if(!container)return;
+ const filledLangs=SUPPORTED_LANGUAGES.filter(l=>countLangFilledLinks(l)>0);
+ const statusEl=document.getElementById("activeLangStatus");
+ if(statusEl){
+  statusEl.textContent=filledLangs.length
+   ?`✅ Links ready for: ${filledLangs.join(", ")} (Save दबाने पर ये सभी भाषाएं सेव होंगी)`
+   :`इस भाषा के लिए नीचे Stream और Download URLs भरें`;
+ }
+ container.innerHTML=SUPPORTED_LANGUAGES.map(lang=>{
+  const count=countLangFilledLinks(lang);
+  const isActive=lang===activeEpisodeLang;
+  return `<button type="button" class="lang-tab ${isActive?"active":""}" onclick="switchLanguageTab('${lang}')">
+   <span>${safe(lang)}</span>
+   ${count>0?`<span class="lang-dot">✓ ${count}</span>`:""}
+  </button>`;
+ }).join("");
+}
+
+function populateMultiLangDraftFromEpisode(episodeId){
+ multiLangDraft=createEmptyLangDraft();
+ const links=serverData.filter(s=>String(s.episode_id)===String(episodeId));
+ links.forEach(s=>{
+  const rawLang=String(s.language||"Hindi").trim();
+  const matchedLang=SUPPORTED_LANGUAGES.find(l=>l.toLowerCase()===rawLang.toLowerCase())||"Hindi";
+  if(!multiLangDraft[matchedLang]){
+   multiLangDraft[matchedLang]={serverName:"Server 1",url480:"",url720:"",url1080:"",dl480:"",dl720:"",dl1080:""};
+  }
+  if(s.server_name){
+   multiLangDraft[matchedLang].serverName=s.server_name.replace(new RegExp(`\\s*\\(${matchedLang}\\)$`,"i"),"");
+  }
+  if(s.quality==="480p"){
+   multiLangDraft[matchedLang].url480=s.video_url||"";
+   multiLangDraft[matchedLang].dl480=s.download_url||"";
+  }else if(s.quality==="720p"){
+   multiLangDraft[matchedLang].url720=s.video_url||"";
+   multiLangDraft[matchedLang].dl720=s.download_url||"";
+  }else if(s.quality==="1080p"){
+   multiLangDraft[matchedLang].url1080=s.video_url||"";
+   multiLangDraft[matchedLang].dl1080=s.download_url||"";
+  }
+ });
+}
+
+/* Auto-detect if selected Anime + Season + Episode Number already exists so adding 2nd/3rd language never fails */
+function checkExistingEpisodeAutoLoad(){
+ if(editingEpisodeId)return;
+ const anime_id=document.getElementById("episodeAnime")?.value;
+ const season_id=document.getElementById("episodeSeason")?.value;
+ const epNum=Number(document.getElementById("episodeNumber")?.value);
+ if(!anime_id||!season_id||!epNum)return;
+
+ const existingEp=episodeData.find(e=>
+  String(e.anime_id)===String(anime_id)&&
+  String(e.season_id)===String(season_id)&&
+  Number(e.episode_number)===epNum
+ );
+
+ if(existingEp){
+  if(!document.getElementById("episodeTitle").value.trim()){
+   document.getElementById("episodeTitle").value=existingEp.title||`Episode ${epNum}`;
+  }
+  if(!document.getElementById("episodeDescription").value.trim()&&existingEp.description){
+   document.getElementById("episodeDescription").value=existingEp.description;
+  }
+  populateMultiLangDraftFromEpisode(existingEp.id);
+  loadLangDraftIntoInputs(activeEpisodeLang);
+  const existingLangs=SUPPORTED_LANGUAGES.filter(l=>countLangFilledLinks(l)>0);
+  setMessage("episodeFormMessage",`ℹ️ Episode ${epNum} पहले से मौजूद है (${existingLangs.join(", ")||"No links"})। आप ऊपर किसी भी Language Tab पर क्लिक करके नई भाषा के लिंक जोड़ सकते हैं!`);
+ }else{
+  setMessage("episodeFormMessage","");
+ }
+}
+
 function updateSeasonOptions(){
  const animeId=document.getElementById("episodeAnime").value;
  const rows=seasonData.filter(s=>String(s.anime_id)===String(animeId));
@@ -1505,106 +1655,167 @@ function updateSeasonOptions(){
   :`<option value="">-- First Add a Season Above --</option>`;
  if(rows.some(s=>String(s.id)===String(old)))select.value=old;
 }
+
 function getQualityInputs(){
  return [
-  {quality:"480p",streamId:"url480",dlId:"dl480"},
-  {quality:"720p",streamId:"url720",dlId:"dl720"},
-  {quality:"1080p",streamId:"url1080",dlId:"dl1080"}
+  {quality:"480p",streamKey:"url480",dlKey:"dl480"},
+  {quality:"720p",streamKey:"url720",dlKey:"dl720"},
+  {quality:"1080p",streamKey:"url1080",dlKey:"dl1080"}
  ];
 }
-async function saveQualityLinks(episodeId){
- const server_name=document.getElementById("serverName").value.trim()||"Server 1";
- const language=document.getElementById("serverLanguage").value;
 
- for(const item of getQualityInputs()){
-  const streamUrl=document.getElementById(item.streamId).value.trim();
-  const downloadUrl=document.getElementById(item.dlId).value.trim();
+async function saveAllMultiLanguageLinks(episodeId,animeId){
+ syncCurrentLangDraft();
+ const addedLanguages=[];
 
-  const {data:existing,error:findError}=await db.from("video_servers")
-   .select("id")
-   .eq("episode_id",episodeId)
-   .eq("quality",item.quality)
-   .eq("language",language)
-   .limit(1);
-  if(findError)throw findError;
+ for(const language of SUPPORTED_LANGUAGES){
+  const draft=multiLangDraft[language];
+  if(!draft)continue;
+  const baseServerName=(draft.serverName||"Server 1").trim();
 
-  if(!streamUrl&&!downloadUrl){
-   if(existing&&existing.length){
-    await db.from("video_servers").delete().eq("id",existing[0].id);
+  for(const item of getQualityInputs()){
+   const streamUrl=(draft[item.streamKey]||"").trim();
+   const downloadUrl=(draft[item.dlKey]||"").trim();
+
+   const {data:existingRows,error:findError}=await db.from("video_servers")
+    .select("id")
+    .eq("episode_id",episodeId)
+    .eq("quality",item.quality)
+    .ilike("language",language);
+   if(findError)throw findError;
+
+   if(!streamUrl&&!downloadUrl){
+    if(existingRows&&existingRows.length){
+     const idsToDel=existingRows.map(r=>r.id);
+     await db.from("video_servers").delete().in("id",idsToDel);
+    }
+    continue;
    }
-   continue;
-  }
 
-  const payloadWithDl={
-   episode_id:episodeId,
-   server_name,
-   video_url:streamUrl||downloadUrl,
-   download_url:downloadUrl||null,
-   quality:item.quality,
-   language
-  };
+   if(!addedLanguages.includes(language))addedLanguages.push(language);
 
-  if(existing&&existing.length){
-   let {error}=await db.from("video_servers").update(payloadWithDl).eq("id",existing[0].id);
-   if(error&&String(error.message).includes("download_url")){
-    const {error:fallbackErr}=await db.from("video_servers").update({
-     server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language
-    }).eq("id",existing[0].id);
-    if(fallbackErr)throw fallbackErr;
-   }else if(error){
-    throw error;
-   }
-  }else{
-   let {error}=await db.from("video_servers").insert(payloadWithDl);
-   if(error&&String(error.message).includes("download_url")){
-    const {error:fallbackErr}=await db.from("video_servers").insert({
-     episode_id:episodeId,server_name,video_url:streamUrl||downloadUrl,quality:item.quality,language
-    });
-    if(fallbackErr)throw fallbackErr;
-   }else if(error){
-    throw error;
+   const payloadWithDl={
+    episode_id:episodeId,
+    server_name:baseServerName,
+    video_url:streamUrl||downloadUrl,
+    download_url:downloadUrl||null,
+    quality:item.quality,
+    language
+   };
+
+   if(existingRows&&existingRows.length){
+    let {error}=await db.from("video_servers").update(payloadWithDl).eq("id",existingRows[0].id);
+    if(error&&String(error.message).includes("download_url")){
+     const {error:fallbackErr}=await db.from("video_servers").update({
+      server_name:baseServerName,video_url:streamUrl||downloadUrl,quality:item.quality,language
+     }).eq("id",existingRows[0].id);
+     if(fallbackErr)throw fallbackErr;
+    }else if(error){
+     throw error;
+    }
+    if(existingRows.length>1){
+     const extraIds=existingRows.slice(1).map(r=>r.id);
+     await db.from("video_servers").delete().in("id",extraIds);
+    }
+   }else{
+    let {error}=await db.from("video_servers").insert(payloadWithDl);
+    // Fallback if database has a constraint on (episode_id, server_name, quality)
+    if(error&&(String(error.message).toLowerCase().includes("duplicate")||String(error.message).toLowerCase().includes("unique"))){
+     const altPayload={...payloadWithDl,server_name:`${baseServerName} (${language})`};
+     const retry=await db.from("video_servers").insert(altPayload);
+     error=retry.error;
+    }
+    if(error&&String(error.message).includes("download_url")){
+     const {error:fallbackErr}=await db.from("video_servers").insert({
+      episode_id:episodeId,server_name:`${baseServerName} (${language})`,video_url:streamUrl||downloadUrl,quality:item.quality,language
+     });
+     if(fallbackErr)throw fallbackErr;
+    }else if(error){
+     throw error;
+    }
    }
   }
  }
+
+ // Also auto-update the parent Anime's language column so all added episode languages show on the Anime too
+ if(animeId&&addedLanguages.length){
+  const parentAnime=animeData.find(a=>String(a.id)===String(animeId));
+  if(parentAnime){
+   const currentLangs=String(parentAnime.language||"")
+    .split(",")
+    .map(x=>x.trim())
+    .filter(Boolean);
+   let changed=false;
+   addedLanguages.forEach(l=>{
+    if(!currentLangs.some(cl=>cl.toLowerCase()===l.toLowerCase())){
+     currentLangs.push(l);
+     changed=true;
+    }
+   });
+   if(changed){
+    await db.from("anime").update({language:currentLangs.join(", ")}).eq("id",animeId);
+   }
+  }
+ }
+ return addedLanguages;
 }
 
 async function saveEpisode(){
+ syncCurrentLangDraft();
  const anime_id=document.getElementById("episodeAnime").value;
  const season_id=document.getElementById("episodeSeason").value;
  const episode_number=Number(document.getElementById("episodeNumber").value);
- const title=document.getElementById("episodeTitle").value.trim();
- if(!anime_id||!season_id||!episode_number||!title){
-  toast("Fill anime, season, episode number and title");return;
+ const title=document.getElementById("episodeTitle").value.trim()||`Episode ${episode_number}`;
+ if(!anime_id||!season_id||!episode_number){
+  toast("Select anime, season, and episode number");return;
  }
+
  const row={
   anime_id,season_id,episode_number,title,
   description:document.getElementById("episodeDescription").value.trim(),
   is_published:document.getElementById("episodePublished").value==="true"
  };
+
  const btn=document.getElementById("saveEpisodeBtn");
- btn.disabled=true;setMessage("episodeFormMessage","Saving episode, stream and download links...");
+ btn.disabled=true;setMessage("episodeFormMessage","Saving episode & all multi-language links...");
  try{
-  const wasEditing=!!editingEpisodeId;
-  let episodeId=editingEpisodeId;
-  if(editingEpisodeId){
-   const {error}=await db.from("episodes").update(row).eq("id",editingEpisodeId);
+  // Auto-detect if episode already exists in this season so adding a 2nd language reuses the episode ID
+  let targetEpisodeId=editingEpisodeId;
+  if(!targetEpisodeId){
+   const existingEp=episodeData.find(e=>
+    String(e.anime_id)===String(anime_id)&&
+    String(e.season_id)===String(season_id)&&
+    Number(e.episode_number)===episode_number
+   );
+   if(existingEp){
+    targetEpisodeId=existingEp.id;
+   }
+  }
+
+  const wasUpdating=!!targetEpisodeId;
+  if(targetEpisodeId){
+   const {error}=await db.from("episodes").update(row).eq("id",targetEpisodeId);
    if(error)throw error;
   }else{
    const {data,error}=await db.from("episodes").insert(row).select("id").single();
    if(error)throw error;
-   episodeId=data.id;
+   targetEpisodeId=data.id;
   }
-  await saveQualityLinks(episodeId);
+
+  const savedLangs=await saveAllMultiLanguageLinks(targetEpisodeId,anime_id);
   resetEpisodeForm();
   await loadAll();
-  toast(wasEditing?"Episode & links updated":"Episode & links saved");
+  toast(wasUpdating
+   ?`Episode ${episode_number} updated (${savedLangs.join(", ")||"Links saved"})`
+   :`Episode ${episode_number} saved with languages: ${savedLangs.join(", ")||"None"}`);
  }catch(e){
   console.error(e);
   setMessage("episodeFormMessage","Save error: "+e.message);
   toast("Episode save error: "+e.message);
  }finally{btn.disabled=false;}
 }
-async function editEpisode(id){
+
+async function editEpisode(id,preferredLang){
  const e=episodeData.find(x=>String(x.id)===String(id));if(!e)return;
  editingEpisodeId=id;
  document.getElementById("episodeAnime").value=e.anime_id;
@@ -1615,39 +1826,31 @@ async function editEpisode(id){
  document.getElementById("episodeDescription").value=e.description||"";
  document.getElementById("episodePublished").value=String(e.is_published!==false);
 
- ["url480","url720","url1080","dl480","dl720","dl1080"].forEach(k=>document.getElementById(k).value="");
+ populateMultiLangDraftFromEpisode(id);
 
- const links=serverData.filter(s=>String(s.episode_id)===String(id));
- if(links.length){
-  const first=links[0];
-  document.getElementById("serverName").value=first.server_name||"Server 1";
-  document.getElementById("serverLanguage").value=first.language||"Hindi";
-  links.forEach(s=>{
-   const field=getQualityInputs().find(q=>q.quality===s.quality);
-   if(field){
-    document.getElementById(field.streamId).value=s.video_url||"";
-    document.getElementById(field.dlId).value=s.download_url||"";
-   }
-  });
- }
- document.getElementById("saveEpisodeBtn").textContent="💾 Save Episode Changes";
+ const filledLangs=SUPPORTED_LANGUAGES.filter(l=>countLangFilledLinks(l)>0);
+ const initialLang=preferredLang||filledLangs[0]||"Hindi";
+ loadLangDraftIntoInputs(initialLang);
+
+ document.getElementById("saveEpisodeBtn").textContent="💾 Save Episode & All Language Changes";
  document.getElementById("cancelEpisodeEditBtn").classList.remove("hidden");
- setMessage("episodeFormMessage","Editing episode. Stream & Download links loaded.");
+ setMessage("episodeFormMessage",`Editing Episode ${e.episode_number}. Available languages loaded: ${filledLangs.join(", ")||"None"}. ऊपर किसी भी Language Tab पर क्लिक करके नई भाषा जोड़ें या एडिट करें।`);
  document.getElementById("episodeAnime").scrollIntoView({behavior:"smooth"});
 }
+
 function resetEpisodeForm(){
  editingEpisodeId=null;
  document.getElementById("episodeNumber").value=1;
  document.getElementById("episodeTitle").value="";
  document.getElementById("episodeDescription").value="";
  document.getElementById("episodePublished").value="true";
- document.getElementById("serverName").value="Server 1";
- document.getElementById("serverLanguage").value="Hindi";
- ["url480","url720","url1080","dl480","dl720","dl1080"].forEach(id=>document.getElementById(id).value="");
- document.getElementById("saveEpisodeBtn").textContent="➕ Save Episode + Stream & Download Links";
+ multiLangDraft=createEmptyLangDraft();
+ loadLangDraftIntoInputs("Hindi");
+ document.getElementById("saveEpisodeBtn").textContent="➕ Save Episode + All Language Links";
  document.getElementById("cancelEpisodeEditBtn").classList.add("hidden");
  setMessage("episodeFormMessage","");
 }
+
 function renderEpisodeManagement(){
  const selected=document.getElementById("bulkAnimeSelect")?.value;
  const rows=episodeData.filter(e=>!selected||String(e.anime_id)===String(selected));
@@ -1656,30 +1859,45 @@ function renderEpisodeManagement(){
   const anime=animeData.find(a=>String(a.id)===String(e.anime_id));
   const season=seasonData.find(s=>String(s.id)===String(e.season_id));
   const links=serverData.filter(s=>String(s.episode_id)===String(e.id));
-  const streamQualities=[...new Set(links.filter(s=>s.video_url).map(s=>s.quality))].join(", ")||"None";
-  const dlQualities=[...new Set(links.filter(s=>s.download_url).map(s=>s.quality))].join(", ")||"Same as stream / None";
+
+  // Group qualities by language
+  const langMap={};
+  links.forEach(s=>{
+   const l=s.language||"Hindi";
+   if(!langMap[l])langMap[l]={stream:[],dl:[]};
+   if(s.video_url&&!langMap[l].stream.includes(s.quality))langMap[l].stream.push(s.quality);
+   if(s.download_url&&!langMap[l].dl.includes(s.quality))langMap[l].dl.push(s.quality);
+  });
+
+  const langBadgesHTML=Object.keys(langMap).length
+   ?Object.entries(langMap).map(([lang,qObj])=>
+     `<span class="badge green" style="cursor:pointer" onclick="editEpisode('${safe(e.id)}','${safe(lang)}')" title="Click to edit ${safe(lang)} links">🎧 ${safe(lang)}: ▶️ ${safe(qObj.stream.join("/")||"—")} ${qObj.dl.length?`| ⬇️ ${safe(qObj.dl.join("/"))}`:""}</span>`
+    ).join(" ")
+   :`<span class="badge amber">No language links added</span>`;
+
   return `
   <div class="item">
    <div class="item-info">
     <b>Ep ${safe(e.episode_number)}: ${safe(e.title)}</b>
     <small>${safe(anime?.title||"Anime")} · ${safe(season?.title||"Season")}</small>
-    <small>▶️ Stream: ${safe(streamQualities)} | ⬇️ Download: ${safe(dlQualities)}</small>
+    <div style="margin-top:4px">${langBadgesHTML}</div>
     <span class="badge ${e.is_published===false?"amber":"green"}">${e.is_published===false?"Draft":"Published"}</span>
    </div>
    <div class="btn-group">
-    <button class="secondary" onclick="editEpisode('${safe(e.id)}')">Edit</button>
+    <button class="secondary" onclick="editEpisode('${safe(e.id)}')">➕ Add / Edit Languages</button>
     <button class="danger" onclick="deleteSingleEpisode('${safe(e.id)}')">Delete</button>
    </div>
   </div>`;
  }).join(""):"<p class='muted'>No episodes found for this anime.</p>";
 }
+
 async function deleteSingleEpisode(id){
- if(!confirm("Delete this episode and its video links?"))return;
+ if(!confirm("Delete this episode and all its multi-language video links?"))return;
  try{
   await db.from("video_servers").delete().eq("episode_id",id);
   const {error}=await db.from("episodes").delete().eq("id",id);
   if(error)throw error;
-  await loadAll();toast("Episode and its video links deleted");
+  await loadAll();toast("Episode and all language links deleted");
  }catch(e){toast("Delete error: "+e.message);}
 }
 async function deleteAllAnimeEpisodes(){
