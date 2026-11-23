@@ -167,6 +167,7 @@ small,.muted{color:var(--muted)}
    <button class="nav-btn" onclick="showSection('verification',this)">🔐 Download Verification</button>
    <button class="nav-btn" onclick="showSection('notifications',this)">📢 Popups & Alerts</button>
    <button class="nav-btn" onclick="showSection('comments',this)">💬 Comments</button>
+   <button class="nav-btn" onclick="showSection('chatAdmin',this)">🗨️ Community Chat</button>
    <button class="nav-btn" onclick="showSection('sqlsetup',this)">🛠 SQL & RLS Helper</button>
   </div>
  </aside>
@@ -749,6 +750,24 @@ small,.muted{color:var(--muted)}
    </div>
   </section>
 
+  <!-- 7b. COMMUNITY CHAT MODERATION -->
+  <section id="chatAdmin" class="section">
+   <div class="panel">
+    <h3>🗨️ Community Chat Moderation</h3>
+    <p class="muted">App के Chat tab में भेजे गए latest messages। किसी message को delete करें या user को chat से block करें।</p>
+    <div class="row" style="margin-bottom:10px">
+     <button class="secondary" onclick="loadChatAdmin()">↻ Refresh</button>
+     <button class="danger" onclick="clearAllChatMessages()">🗑 Clear All Messages</button>
+    </div>
+    <p id="chatAdminMessage" class="muted"></p>
+    <div id="chatMessageList">Open this tab to load messages...</div>
+   </div>
+   <div class="panel">
+    <h3>🚫 Blocked Users (Chat Ban)</h3>
+    <div id="chatBanList">—</div>
+   </div>
+  </section>
+
   <!-- 8. SQL & RLS HELPER -->
   <section id="sqlsetup" class="section">
    <div class="panel">
@@ -892,6 +911,100 @@ EXCEPTION WHEN OTHERS THEN
   RAISE NOTICE 'Episode key update skipped: %', SQLERRM;
 END $$;
 
+-- ===== Community Chat (App ke Chat tab ke liye) =====
+-- Supabase Dashboard > SQL Editor me paste karke Run karein.
+
+CREATE TABLE IF NOT EXISTS public.chat_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_name text NOT NULL DEFAULT 'Anime Fan',
+  username text,
+  message text NOT NULL CHECK (char_length(message) BETWEEN 1 AND 500),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS chat_messages_created_idx ON public.chat_messages (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.chat_bans (
+  user_id uuid PRIMARY KEY,
+  user_name text,
+  reason text,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_bans ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT, INSERT, DELETE ON public.chat_messages TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.chat_bans TO authenticated;
+
+-- Sirf login kiye hue users hi chat padh sakte hain
+DROP POLICY IF EXISTS "chat read for logged in users" ON public.chat_messages;
+CREATE POLICY "chat read for logged in users" ON public.chat_messages
+  FOR SELECT TO authenticated USING (true);
+
+-- Sirf login kiya hua user, apne hi naam se, aur block na hua ho to hi message bhej sakta hai
+DROP POLICY IF EXISTS "chat send for logged in users" ON public.chat_messages;
+CREATE POLICY "chat send for logged in users" ON public.chat_messages
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    user_id = auth.uid()
+    AND NOT EXISTS (SELECT 1 FROM public.chat_bans b WHERE b.user_id = auth.uid())
+  );
+
+-- Messages sirf admin delete kar sakta hai
+DROP POLICY IF EXISTS "chat admin delete" ON public.chat_messages;
+CREATE POLICY "chat admin delete" ON public.chat_messages
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_users a WHERE a.user_id = auth.uid()));
+
+-- Ban list: user apni khud ki ban entry dekh sakta hai, admin sab manage kar sakta hai
+DROP POLICY IF EXISTS "chat bans read own or admin" ON public.chat_bans;
+CREATE POLICY "chat bans read own or admin" ON public.chat_bans
+  FOR SELECT TO authenticated
+  USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM public.admin_users a WHERE a.user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "chat bans admin manage" ON public.chat_bans;
+CREATE POLICY "chat bans admin manage" ON public.chat_bans
+  FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_users a WHERE a.user_id = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.admin_users a WHERE a.user_id = auth.uid()));
+
+-- Spam rokne ke liye 2 second ka gap, aur naam server se hi set hota hai (koi dusre ke naam se message nahi bhej sakta)
+CREATE OR REPLACE FUNCTION public.chat_prepare_message()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  u record;
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.chat_messages m
+    WHERE m.user_id = NEW.user_id AND m.created_at > now() - interval '2 seconds'
+  ) THEN
+    RAISE EXCEPTION 'Thoda ruk kar message bhejein (2 second ka gap).';
+  END IF;
+
+  SELECT
+    COALESCE(NULLIF(raw_user_meta_data->>'full_name', ''), NULLIF(raw_user_meta_data->>'name', ''), split_part(email, '@', 1)) AS uname,
+    NULLIF(raw_user_meta_data->>'username', '') AS handle
+  INTO u
+  FROM auth.users WHERE id = NEW.user_id;
+
+  NEW.user_name := COALESCE(u.uname, 'Anime Fan');
+  NEW.username := u.handle;
+  NEW.message := trim(NEW.message);
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS chat_prepare_message_trg ON public.chat_messages;
+CREATE TRIGGER chat_prepare_message_trg
+  BEFORE INSERT ON public.chat_messages
+  FOR EACH ROW EXECUTE FUNCTION public.chat_prepare_message();
+
+
 NOTIFY pgrst, 'reload schema';</div>
    </div>
   </section>
@@ -1004,9 +1117,11 @@ function showSection(id,button){
   verification:"Download Verification (24h Unlock)",
   notifications:"Popups & Announcements",
   comments:"Comments Management",
+  chatAdmin:"Community Chat Moderation",
   sqlsetup:"SQL & RLS Helper"
  };
  document.getElementById("pageTitle").textContent=titles[id]||"Admin Panel";
+ if(id==="chatAdmin")loadChatAdmin();
 }
 
 /* SAFE DATA LOADER */
@@ -2297,6 +2412,92 @@ function renderComments(){
   </div>`;
  }).join(""):"<p class='muted'>No comments found.</p>";
 }
+/* COMMUNITY CHAT MODERATION */
+let chatMessagesData=[],chatBansData=[];
+async function loadChatAdmin(){
+ const listEl=document.getElementById("chatMessageList");
+ try{
+  const [m,b]=await Promise.all([
+   db.from("chat_messages").select("*").order("created_at",{ascending:false}).limit(200),
+   db.from("chat_bans").select("*").order("created_at",{ascending:false})
+  ]);
+  if(m.error)throw m.error;
+  if(b.error)throw b.error;
+  chatMessagesData=m.data||[];
+  chatBansData=b.data||[];
+  renderChatAdmin();
+  setMessage("chatAdminMessage",`Latest ${chatMessagesData.length} messages (नए ऊपर)`);
+ }catch(e){
+  listEl.innerHTML=`<p class="muted">Chat data load नहीं हुआ: ${safe(e.message)}<br>SQL & RLS Helper tab से "Copy Full SQL Migration" Supabase SQL Editor में run करें।</p>`;
+ }
+}
+function renderChatAdmin(){
+ const banned=new Set(chatBansData.map(b=>String(b.user_id)));
+ const listEl=document.getElementById("chatMessageList");
+ listEl.innerHTML=chatMessagesData.length?chatMessagesData.map(m=>{
+  const isBanned=banned.has(String(m.user_id));
+  return `
+  <div class="item">
+   <div class="item-info">
+    <b>${safe(m.user_name||"Anime Fan")}${m.username?` <small>@${safe(m.username)}</small>`:""}</b>
+    <small>${safe(formatDateTimeIST(m.created_at))}</small>
+    <span style="white-space:pre-wrap;word-break:break-word">${safe(m.message)}</span>
+    ${isBanned?'<span class="badge amber">Blocked</span>':""}
+   </div>
+   <div class="btn-group">
+    <button class="secondary" onclick="deleteChatMessage('${safe(m.id)}')">Delete</button>
+    ${isBanned
+     ?`<button class="secondary" onclick="unbanChatUser('${safe(m.user_id)}')">Unblock</button>`
+     :`<button class="danger" onclick="banChatUser('${safe(m.user_id)}')">Block User</button>`}
+   </div>
+  </div>`;
+ }).join(""):"<p class='muted'>अभी कोई chat message नहीं है।</p>";
+
+ const banEl=document.getElementById("chatBanList");
+ banEl.innerHTML=chatBansData.length?chatBansData.map(b=>`
+  <div class="item">
+   <div class="item-info">
+    <b>${safe(b.user_name||"User")}</b>
+    <small>${safe(b.reason||"No reason")} · ${safe(formatDateTimeIST(b.created_at))}</small>
+   </div>
+   <div class="btn-group"><button class="secondary" onclick="unbanChatUser('${safe(b.user_id)}')">Unblock</button></div>
+  </div>`).join(""):"<p class='muted'>कोई user blocked नहीं है।</p>";
+}
+async function deleteChatMessage(id){
+ if(!confirm("यह message delete करें?"))return;
+ try{
+  const {error}=await db.from("chat_messages").delete().eq("id",id);
+  if(error)throw error;
+  await loadChatAdmin();toast("Message deleted");
+ }catch(e){toast("Delete error: "+e.message);}
+}
+async function clearAllChatMessages(){
+ if(!confirm("सभी chat messages हमेशा के लिए delete हो जाएँगे। आगे बढ़ें?"))return;
+ try{
+  const {error}=await db.from("chat_messages").delete().gte("created_at","1970-01-01");
+  if(error)throw error;
+  await loadChatAdmin();toast("All chat messages cleared");
+ }catch(e){toast("Clear error: "+e.message);}
+}
+async function banChatUser(userId){
+ const msg=chatMessagesData.find(m=>String(m.user_id)===String(userId));
+ const name=msg?.user_name||"User";
+ const reason=prompt(`"${name}" को chat से block करें।\nReason (optional):`,"");
+ if(reason===null)return;
+ try{
+  const {error}=await db.from("chat_bans").upsert({user_id:userId,user_name:name,reason:reason.trim()||null});
+  if(error)throw error;
+  await loadChatAdmin();toast(name+" blocked from chat");
+ }catch(e){toast("Block error: "+e.message);}
+}
+async function unbanChatUser(userId){
+ try{
+  const {error}=await db.from("chat_bans").delete().eq("user_id",userId);
+  if(error)throw error;
+  await loadChatAdmin();toast("User unblocked");
+ }catch(e){toast("Unblock error: "+e.message);}
+}
+
 async function replyComment(id){
  const reply=document.getElementById("reply-"+id).value.trim();
  try{
