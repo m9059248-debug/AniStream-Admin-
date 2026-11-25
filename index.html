@@ -163,6 +163,7 @@ small,.muted{color:var(--muted)}
    <button class="nav-btn active" onclick="showSection('dashboard',this)">📊 Dashboard & Analytics</button>
    <button class="nav-btn" onclick="showSection('users',this)">👥 App Users</button>
    <button class="nav-btn" onclick="showSection('anime',this)">🎌 Anime Manager</button>
+   <button class="nav-btn" onclick="showSection('episodeManager',this)">🎞️ Episode Manager</button>
    <button class="nav-btn" onclick="showSection('schedule',this)">📅 Schedule Manager</button>
    <button class="nav-btn" onclick="showSection('verification',this)">🔐 Download Verification</button>
    <button class="nav-btn" onclick="showSection('notifications',this)">📢 Popups & Alerts</button>
@@ -750,6 +751,71 @@ small,.muted{color:var(--muted)}
    </div>
   </section>
 
+  <!-- 3b. EPISODE MANAGER (bulk stream / download links) -->
+  <section id="episodeManager" class="section">
+   <div class="panel entry-panel">
+    <h3>🎞️ Episode Manager</h3>
+    <p class="muted">एक साथ कई Episodes के <b>Stream Links</b> और <b>Download Links</b> लगाएँ या बदलें। दोनों सिस्टम अलग-अलग हैं: Stream Links save करने से Download Links नहीं बदलते, और Download Links save करने से Stream Links नहीं बदलते।</p>
+
+    <div class="grid2">
+     <div>
+      <label>Anime</label>
+      <select id="emAnime" onchange="emAnimeChanged()"></select>
+     </div>
+     <div>
+      <label>Season</label>
+      <select id="emSeason" onchange="emSeasonChanged()"></select>
+     </div>
+    </div>
+
+    <div class="grid3">
+     <div>
+      <label>From Episode</label>
+      <input id="emFrom" type="number" min="1" value="1">
+     </div>
+     <div>
+      <label>To Episode</label>
+      <input id="emTo" type="number" min="1" value="12">
+     </div>
+     <div>
+      <label>Server Name</label>
+      <input id="emServer" value="Server 1" placeholder="Server 1">
+     </div>
+    </div>
+
+    <label>Audio Language (links इन सभी languages में लगेंगे)</label>
+    <div class="language-list" id="emLanguageChoices">
+     <label><input type="checkbox" name="emLanguage" value="Hindi" checked> Hindi</label>
+     <label><input type="checkbox" name="emLanguage" value="Japanese"> Japanese</label>
+     <label><input type="checkbox" name="emLanguage" value="English"> English</label>
+     <label><input type="checkbox" name="emLanguage" value="Tamil"> Tamil</label>
+     <label><input type="checkbox" name="emLanguage" value="Telugu"> Telugu</label>
+     <label><input type="checkbox" name="emLanguage" value="Subtitles"> Subtitles</label>
+    </div>
+
+    <div class="grid2">
+     <div>
+      <label>नए Episodes का Status</label>
+      <select id="emPublished"><option value="true">Published</option><option value="false">Draft</option></select>
+     </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+     <button type="button" onclick="emLoad()">📥 Episodes Load करें</button>
+    </div>
+    <p id="emMessage" class="muted"></p>
+   </div>
+
+   <div class="panel hidden" id="emWorkspace">
+    <div class="row em-tabs" style="margin-bottom:10px">
+     <button type="button" id="emTabStream" onclick="emSwitch('stream')">▶️ Stream Links</button>
+     <button type="button" id="emTabDownload" class="secondary" onclick="emSwitch('download')">⬇️ Download Links</button>
+    </div>
+    <div id="emPanelStream"></div>
+    <div id="emPanelDownload" class="hidden"></div>
+   </div>
+  </section>
+
   <!-- 7b. COMMUNITY CHAT MODERATION -->
   <section id="chatAdmin" class="section">
    <div class="panel">
@@ -983,7 +1049,7 @@ BEGIN
     SELECT 1 FROM public.chat_messages m
     WHERE m.user_id = NEW.user_id AND m.created_at > now() - interval '2 seconds'
   ) THEN
-    RAISE EXCEPTION 'Thoda ruk kar message bhejein (2 second ka gap).';
+    RAISE EXCEPTION 'Please wait 2 seconds between messages.';
   END IF;
 
   SELECT
@@ -1113,6 +1179,7 @@ function showSection(id,button){
   dashboard:"Dashboard & Analytics",
   users:"Logged-In App Users Directory",
   anime:"Anime Manager",
+  episodeManager:"Episode Manager",
   schedule:"Anime Schedule Manager",
   verification:"Download Verification (24h Unlock)",
   notifications:"Popups & Announcements",
@@ -1122,6 +1189,7 @@ function showSection(id,button){
  };
  document.getElementById("pageTitle").textContent=titles[id]||"Admin Panel";
  if(id==="chatAdmin")loadChatAdmin();
+ if(id==="episodeManager")emFillAnime();
 }
 
 /* SAFE DATA LOADER */
@@ -2498,6 +2566,330 @@ async function unbanChatUser(userId){
  }catch(e){toast("Unblock error: "+e.message);}
 }
 
+/* EPISODE MANAGER: bulk Stream / Download links (alag-alag system) */
+const EM_QUALITIES=["480p","720p","1080p"];
+let emState={animeId:"",seasonId:"",episodes:[],server:"Server 1"};
+let emSaving=false;
+
+function emFillAnime(){
+ const sel=document.getElementById("emAnime");
+ if(!sel)return;
+ const old=sel.value;
+ sel.innerHTML=`<option value="">Select anime</option>`+animeData.map(a=>`<option value="${safe(a.id)}">${safe(a.title)}</option>`).join("");
+ if(animeData.some(a=>String(a.id)===String(old)))sel.value=old;
+ emFillSeasons();
+}
+function emFillSeasons(){
+ const sel=document.getElementById("emSeason");
+ if(!sel)return;
+ const animeId=document.getElementById("emAnime").value;
+ const old=sel.value;
+ const rows=seasonData.filter(x=>String(x.anime_id)===String(animeId))
+  .sort((a,b)=>(Number(a.season_number)||0)-(Number(b.season_number)||0));
+ sel.innerHTML=rows.length
+  ?rows.map(x=>`<option value="${safe(x.id)}">${safe(x.title||("Season "+x.season_number))}</option>`).join("")
+  :`<option value="">No seasons (पहले Season बनाएँ)</option>`;
+ if(rows.some(x=>String(x.id)===String(old)))sel.value=old;
+}
+function emAnimeChanged(){emFillSeasons();emRangeAuto();emHideWorkspace();}
+function emSeasonChanged(){emRangeAuto();emHideWorkspace();}
+function emHideWorkspace(){
+ const ws=document.getElementById("emWorkspace");
+ if(ws)ws.classList.add("hidden");
+ setMessage("emMessage","");
+}
+function emSeasonEpisodes(){
+ const a=document.getElementById("emAnime").value,s=document.getElementById("emSeason").value;
+ return episodeData.filter(e=>String(e.anime_id)===String(a)&&String(e.season_id)===String(s));
+}
+function emRangeAuto(){
+ const nums=emSeasonEpisodes().map(e=>Number(e.episode_number)).filter(n=>n>0);
+ document.getElementById("emFrom").value=nums.length?Math.min(...nums):1;
+ document.getElementById("emTo").value=nums.length?Math.max(...nums):12;
+}
+function emSelectedLanguages(){
+ return [...document.querySelectorAll('input[name="emLanguage"]:checked')].map(x=>x.value);
+}
+
+async function emLoad(silent=false){
+ const animeId=document.getElementById("emAnime").value;
+ const seasonId=document.getElementById("emSeason").value;
+ if(!animeId||!seasonId){toast("पहले Anime और Season चुनें");return;}
+ const from=Math.max(1,Number(document.getElementById("emFrom").value)||1);
+ const to=Math.max(from,Number(document.getElementById("emTo").value)||from);
+ if(to-from>199){toast("एक बार में अधिकतम 200 episodes");return;}
+ let existing=emSeasonEpisodes();
+ const dups=findDuplicateEpisodeGroups(existing);
+ if(dups.length&&!silent){
+  if(confirm(`${dups.length} episode(s) अलग-अलग language rows में बँटे हुए हैं। पहले इन्हें merge करें? (Links safe रहेंगे)`)){
+   try{
+    for(const g of dups)await mergeEpisodeGroup(g);
+    await loadAll();
+    existing=emSeasonEpisodes();
+   }catch(e){toast("Merge error: "+e.message);return;}
+  }
+ }
+ const byNum=new Map();
+ existing.forEach(e=>{const n=Number(e.episode_number);if(!byNum.has(n))byNum.set(n,e);});
+ const server=document.getElementById("emServer").value.trim()||"Server 1";
+ const episodes=[];
+ const langs=new Set();
+ for(let n=from;n<=to;n++){
+  const e=byNum.get(n);
+  const links={};
+  if(e){
+   serverData.filter(sv=>String(sv.episode_id)===String(e.id)).forEach(sv=>{
+    if(sv.language)langs.add(sv.language);
+    if((sv.server_name||"Server 1")!==server)return;
+    if(!links[sv.quality])links[sv.quality]={stream:sv.video_url||"",download:sv.download_url||""};
+   });
+  }
+  episodes.push({num:n,id:e?e.id:null,title:e?e.title:`Episode ${n}`,isNew:!e,links});
+ }
+ emState={animeId,seasonId,episodes,server};
+ if(langs.size){
+  document.querySelectorAll('input[name="emLanguage"]').forEach(x=>{
+   x.checked=[...langs].some(l=>l.toLowerCase()===x.value.toLowerCase());
+  });
+ }
+ emRender();
+ document.getElementById("emWorkspace").classList.remove("hidden");
+ const newCount=episodes.filter(e=>e.isNew).length;
+ setMessage("emMessage",`${episodes.length} episodes loaded (${episodes.length-newCount} existing, ${newCount} new). Server: ${server}`);
+}
+
+function emRender(){
+ document.getElementById("emPanelStream").innerHTML=emPanelHTML("stream");
+ document.getElementById("emPanelDownload").innerHTML=emPanelHTML("download");
+}
+function emPanelHTML(kind){
+ const isStream=kind==="stream";
+ const label=isStream?"Stream":"Download";
+ const qOpts=EM_QUALITIES.map(q=>`<option value="${q}">${q}</option>`).join("");
+ const qAll=`<option value="all">All qualities</option>`+qOpts;
+ const rows=emState.episodes.map(ep=>{
+  const inputs=EM_QUALITIES.map(q=>{
+   const v=(ep.links[q]&&(isStream?ep.links[q].stream:ep.links[q].download))||"";
+   return `<input class="em-in" data-ep="${ep.num}" data-q="${q}" data-orig="${safe(v)}" type="url" value="${safe(v)}" placeholder="${q} ${label} URL">`;
+  }).join("");
+  return `
+  <div class="bulk-row">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">
+    <b>Episode ${ep.num}${!ep.isNew&&ep.title?` — ${safe(ep.title)}`:""}</b>
+    ${ep.isNew?'<span class="badge amber">NEW</span>':""}
+   </div>
+   <div class="grid3">${inputs}</div>
+  </div>`;
+ }).join("");
+ const pasteBoxes=EM_QUALITIES.map(q=>`<div><label>${q} ${label}</label><textarea id="emPaste-${kind}-${q}" placeholder="एक line = एक episode"></textarea></div>`).join("");
+ return `
+  <p class="muted">${isStream?"▶️ सिर्फ <b>Stream Links</b> (video_url) बदलेंगे।":"⬇️ सिर्फ <b>Download Links</b> (download_url) बदलेंगे।"} Server: <b>${safe(emState.server)}</b>. जिस box का link बदलेंगे सिर्फ वही save होगा; खाली करके save करने से वह link हट जाएगा।</p>
+
+  <details class="bulk-paste">
+   <summary>⚡ Pattern से सभी Episodes भरें</summary>
+   <p class="form-note">{n} = episode number (1, 2, 3...), {nn} = दो अंकों वाला number (01, 02...). Example: https://cdn.site.com/naruto/ep{nn}-720.mp4</p>
+   <div class="grid3">
+    <div><label>Quality</label><select id="emPatQ-${kind}">${qOpts}</select></div>
+    <div style="grid-column:span 2"><label>Link pattern</label><input id="emPat-${kind}" placeholder="https://.../ep{n}.mp4"></div>
+   </div>
+   <button type="button" class="secondary" onclick="emApplyPattern('${kind}')">Pattern लगाएँ</button>
+  </details>
+
+  <details class="bulk-paste">
+   <summary>📋 Links एक साथ Paste करें (हर line में एक Episode)</summary>
+   <p class="form-note">पहली line = पहला episode। किसी episode का link न हो तो खाली line छोड़ें।</p>
+   <div class="grid3">${pasteBoxes}</div>
+   <button type="button" class="secondary" onclick="emFillPasted('${kind}')">⬇️ Rows में भरें</button>
+  </details>
+
+  <details class="bulk-paste">
+   <summary>🔁 सभी Links में Find &amp; Replace</summary>
+   <p class="form-note">जैसे domain बदलना हो: Find = old-cdn.com, Replace = new-cdn.com</p>
+   <div class="grid3">
+    <div><label>Find</label><input id="emFind-${kind}" placeholder="old-cdn.com"></div>
+    <div><label>Replace with</label><input id="emRepl-${kind}" placeholder="new-cdn.com"></div>
+    <div><label>Quality</label><select id="emFRQ-${kind}">${qAll}</select></div>
+   </div>
+   <button type="button" class="secondary" onclick="emFindReplace('${kind}')">बदलें</button>
+  </details>
+
+  <div class="row" style="margin:10px 0">
+   <select id="emClearQ-${kind}" style="max-width:190px">${qAll}</select>
+   <button type="button" class="danger" onclick="emClear('${kind}')">🧹 Fields खाली करें</button>
+  </div>
+
+  ${rows||"<p class='muted'>कोई episode नहीं।</p>"}
+
+  <div class="row">
+   <button type="button" onclick="emSave('${kind}')">💾 सभी ${label} Links Save करें</button>
+  </div>`;
+}
+
+function emSwitch(kind){
+ const isStream=kind==="stream";
+ document.getElementById("emPanelStream").classList.toggle("hidden",!isStream);
+ document.getElementById("emPanelDownload").classList.toggle("hidden",isStream);
+ document.getElementById("emTabStream").classList.toggle("secondary",!isStream);
+ document.getElementById("emTabDownload").classList.toggle("secondary",isStream);
+}
+function emInputs(kind,quality){
+ const box=document.getElementById(kind==="stream"?"emPanelStream":"emPanelDownload");
+ return [...box.querySelectorAll(".em-in")].filter(i=>!quality||quality==="all"||i.dataset.q===quality);
+}
+function emApplyPattern(kind){
+ const q=document.getElementById("emPatQ-"+kind).value;
+ const pat=document.getElementById("emPat-"+kind).value.trim();
+ if(!pat){toast("पहले link pattern लिखें");return;}
+ if(!pat.includes("{n}")&&!pat.includes("{nn}")){
+  if(!confirm("Pattern में {n} या {nn} नहीं है, हर episode को एक ही link मिलेगा। आगे बढ़ें?"))return;
+ }
+ let c=0;
+ emInputs(kind,q).forEach(i=>{
+  const n=Number(i.dataset.ep);
+  i.value=pat.split("{nn}").join(String(n).padStart(2,"0")).split("{n}").join(String(n));
+  c++;
+ });
+ toast(`${c} fields भर दिए (${q})`);
+}
+function emFillPasted(kind){
+ let c=0;
+ EM_QUALITIES.forEach(q=>{
+  const text=document.getElementById(`emPaste-${kind}-${q}`).value;
+  if(!text.trim())return;
+  const lines=text.split(/\r?\n/).map(x=>x.trim());
+  emInputs(kind,q).forEach((inp,idx)=>{
+   if(lines[idx]!==undefined){inp.value=lines[idx];if(lines[idx])c++;}
+  });
+ });
+ toast(`${c} links rows में भर दिए`);
+}
+function emFindReplace(kind){
+ const find=document.getElementById("emFind-"+kind).value;
+ const rep=document.getElementById("emRepl-"+kind).value;
+ const q=document.getElementById("emFRQ-"+kind).value;
+ if(!find){toast("Find वाला text लिखें");return;}
+ let c=0;
+ emInputs(kind,q).forEach(i=>{
+  if(i.value.includes(find)){i.value=i.value.split(find).join(rep);c++;}
+ });
+ toast(`${c} links बदले`);
+}
+function emClear(kind){
+ const q=document.getElementById("emClearQ-"+kind).value;
+ if(!confirm("चुनी हुई quality के सभी fields खाली करें? (Save करने पर ये links हट जाएँगे)"))return;
+ emInputs(kind,q).forEach(i=>{i.value="";});
+}
+
+// ek (episode, server, quality, language) row me सिर्फ एक field (video_url ya download_url) बदलता है
+async function emWriteField(episodeId,serverName,quality,language,field,value){
+ const {data:rows,error:findErr}=await db.from("video_servers")
+  .select("id,video_url,download_url")
+  .eq("episode_id",episodeId).eq("server_name",serverName).eq("quality",quality).eq("language",language)
+  .limit(1);
+ if(findErr)throw findErr;
+ const row=rows&&rows[0];
+ const colErr=e=>String(e&&e.message).includes("download_url")
+  ?new Error("download_url column नहीं मिला। SQL & RLS Helper से migration चलाएँ।"):e;
+
+ if(!row){
+  if(!value)return;
+  // naya row: video_url zaruri hota hai. Stream-only me download_url khali rehta hai (app stream link se download karta hai)
+  const payload={episode_id:episodeId,server_name:serverName,quality,language,video_url:value};
+  if(field==="download_url")payload.download_url=value;
+  const {error}=await db.from("video_servers").insert(payload);
+  if(error)throw colErr(error);
+  return;
+ }
+ if(field==="video_url"){
+  if(value){
+   const {error}=await db.from("video_servers").update({video_url:value}).eq("id",row.id);
+   if(error)throw colErr(error);
+  }else if(row.download_url){
+   // stream link hata diya par download link hai: row rakho, video_url download link se bhar do
+   const {error}=await db.from("video_servers").update({video_url:row.download_url}).eq("id",row.id);
+   if(error)throw colErr(error);
+  }else{
+   const {error}=await db.from("video_servers").delete().eq("id",row.id);
+   if(error)throw error;
+  }
+ }else{
+  const {error}=await db.from("video_servers").update({download_url:value||null}).eq("id",row.id);
+  if(error)throw colErr(error);
+ }
+}
+async function emSyncEpisodeLanguages(id,languages){
+ const e=episodeData.find(x=>String(x.id)===String(id));
+ if(!e)return;
+ const current=String(e.language||"").split(",").map(x=>x.trim()).filter(Boolean);
+ const merged=[...current];
+ languages.forEach(l=>{if(!merged.some(c=>c.toLowerCase()===l.toLowerCase()))merged.push(l);});
+ if(merged.length===current.length)return;
+ const {error}=await db.from("episodes").update({language:merged.join(", ")}).eq("id",id);
+ if(error)throw friendlyEpisodeError(error);
+}
+
+async function emSave(kind){
+ if(emSaving)return;
+ const field=kind==="stream"?"video_url":"download_url";
+ const label=kind==="stream"?"Stream":"Download";
+ const languages=emSelectedLanguages();
+ if(!languages.length){toast("कम से कम एक Audio Language चुनें");return;}
+ const {animeId,seasonId,server}=emState;
+ if(!animeId||!seasonId){toast("पहले Episodes Load करें");return;}
+
+ const changes=new Map();
+ emInputs(kind).forEach(i=>{
+  const val=i.value.trim();
+  if(val===(i.dataset.orig||""))return;
+  const n=Number(i.dataset.ep);
+  if(!changes.has(n))changes.set(n,[]);
+  changes.get(n).push({q:i.dataset.q,val});
+ });
+ if(!changes.size){toast("कोई बदलाव नहीं मिला");return;}
+ const total=[...changes.values()].reduce((a,b)=>a+b.length,0);
+ if(!confirm(`${changes.size} episodes के ${total} ${label} links save होंगे (${languages.join(", ")}).\nआगे बढ़ें?`))return;
+
+ emSaving=true;
+ const failed=[];let done=0;
+ try{
+  for(const [num,list] of changes){
+   const ep=emState.episodes.find(x=>x.num===num);
+   setMessage("emMessage",`Saving Episode ${num} (${done+failed.length+1}/${changes.size})...`);
+   try{
+    if(!ep.id){
+     ep.id=await upsertEpisodeRow({
+      anime_id:animeId,season_id:seasonId,episode_number:num,
+      title:ep.title||`Episode ${num}`,
+      is_published:document.getElementById("emPublished").value==="true",
+      language:languages.join(", ")
+     },null);
+     ep.isNew=false;
+    }else{
+     await emSyncEpisodeLanguages(ep.id,languages);
+    }
+    for(const ch of list){
+     for(const lang of languages){
+      await emWriteField(ep.id,server,ch.q,lang,field,ch.val);
+     }
+    }
+    done++;
+   }catch(e){
+    console.error(e);
+    failed.push(`Ep ${num}: ${e.message}`);
+   }
+  }
+  await loadAll();
+  await emLoad(true);
+  if(failed.length){
+   setMessage("emMessage",`✅ ${done} saved, ❌ ${failed.length} failed → ${failed.join(" | ")}`);
+   toast(`${done} saved, ${failed.length} failed`);
+  }else{
+   setMessage("emMessage",`✅ ${done} episodes के ${label} links save हो गए`);
+   toast(`${label} links saved for ${done} episodes`);
+  }
+ }finally{emSaving=false;}
+}
+
 async function replyComment(id){
  const reply=document.getElementById("reply-"+id).value.trim();
  try{
@@ -2526,6 +2918,7 @@ function fillSelects(){
  updateNotifEpisodeOptions();
  toggleNotifTargetFields();
  renderEpisodeManagement();
+ emFillAnime();
 }
 function copySqlSchema(){
  const text=document.getElementById("sqlCodeBlock").textContent;
